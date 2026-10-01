@@ -114,6 +114,9 @@ namespace
 									   "Independent detections needed before a ban (deterministic detections ban at once)", 2};
 		CConVar<int> confirmationWindow {"csvilka_confirmation_window", FCVAR_NONE, "Seconds a detection stays valid as confirmation evidence",
 										 1800};
+		CConVar<bool> detectionLog {"csvilka_detection_log", FCVAR_NONE, "Append every detection to addons/csvilka/logs", true};
+		CConVar<CUtlString> detectionCommand {"csvilka_detection_command", FCVAR_NONE,
+											  "Command run on every detection, before any punishment decision", CUtlString("")};
 		CConVar<CUtlString> kickCommand {"csvilka_kick_command", FCVAR_NONE, "Command run for kick-only detections",
 										 CUtlString("css_kick #{userid} CSVILKA: {detection}")};
 		CConVar<CUtlString> webhookUrl {"csvilka_webhook_url", FCVAR_PROTECTED, "Discord webhook URL for detection reports", CUtlString("")};
@@ -307,6 +310,16 @@ int settings::GetBanConfirmations()
 int settings::GetConfirmationWindow()
 {
 	return configuration ? std::clamp(configuration->confirmationWindow.Get(), 60, 86400) : 1800;
+}
+
+bool settings::DetectionLogEnabled()
+{
+	return configuration && configuration->detectionLog.GetBool();
+}
+
+const char *settings::GetDetectionCommand()
+{
+	return configuration ? configuration->detectionCommand.Get().Get() : "";
 }
 
 const char *settings::GetKickCommand()

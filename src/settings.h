@@ -45,6 +45,8 @@ namespace settings
 	const char *GetPunishmentCommand();
 	const char *GetKickCommand();
 	bool ObserveMode();
+	bool DetectionLogEnabled();
+	const char *GetDetectionCommand();
 	int GetBanConfirmations();
 	int GetConfirmationWindow();
 	const char *GetWebhookUrl();

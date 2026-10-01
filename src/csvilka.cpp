@@ -21,6 +21,12 @@
 #include "cs_gameevents.pb.h"
 #include "gameevents.pb.h"
 #include "igameevents.h"
+#include <charconv>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <filesystem>
+#include <system_error>
 
 CSVILKAPlugin g_CSVILKA;
 IClientCvarValue *g_pClientCvarValue {};
@@ -59,6 +65,68 @@ namespace
 	}
 
 	// Detections closer together than this belong to the same incident and confirm nothing.
+	const char *OutcomeName(utils::DetectionOutcome outcome)
+	{
+		switch (outcome)
+		{
+			case utils::DetectionOutcome::PunishmentSent: return "punished";
+			case utils::DetectionOutcome::Whitelisted: return "whitelisted";
+			case utils::DetectionOutcome::PunishmentDisabled: return "punishment-disabled";
+			case utils::DetectionOutcome::IdentityUnavailable: return "identity-unavailable";
+			case utils::DetectionOutcome::AlreadyPunished: return "already-punished";
+			case utils::DetectionOutcome::CommandTooLong: return "command-too-long";
+			case utils::DetectionOutcome::CommandServiceUnavailable: return "command-service-unavailable";
+			case utils::DetectionOutcome::NetworkUnstable: return "network-unstable";
+			case utils::DetectionOutcome::AwaitingConfirmation: return "awaiting-confirmation";
+			case utils::DetectionOutcome::ObserveOnly: return "observe-only";
+		}
+		return "unknown";
+	}
+
+	// One line per detection in addons/csvilka/logs/detections-YYYY-MM-DD.log, so admins can review
+	// evidence and tune detectors after the fact.
+	void WriteDetectionLog(const char *detection, const std::string &name, std::uint64_t steamId, utils::DetectionOutcome outcome,
+						   const std::string &evidence)
+	{
+		const char *root = Plat_GetGameDirectory();
+		if (!root || !*root)
+		{
+			return;
+		}
+		const std::time_t now = std::time(nullptr);
+		std::tm local {};
+#ifdef _WIN32
+		localtime_s(&local, &now);
+#else
+		localtime_r(&now, &local);
+#endif
+		char day[16];
+		char stamp[32];
+		std::strftime(day, sizeof(day), "%Y-%m-%d", &local);
+		std::strftime(stamp, sizeof(stamp), "%Y-%m-%d %H:%M:%S", &local);
+		std::error_code error;
+		const std::filesystem::path folder = std::filesystem::path(root) / "csgo" / "addons" / "csvilka" / "logs";
+		std::filesystem::create_directories(folder, error);
+		std::FILE *file = std::fopen((folder / (std::string("detections-") + day + ".log")).string().c_str(), "a");
+		if (!file)
+		{
+			return;
+		}
+		std::fprintf(file, "%s\t%llu\t%s\t%s\t%s\t%s\n", stamp, static_cast<unsigned long long>(steamId), name.c_str(), detection,
+					 OutcomeName(outcome), evidence.c_str());
+		std::fclose(file);
+	}
+
+	bool ParseSteamId(const char *text, std::uint64_t &steamId)
+	{
+		if (!text || !*text)
+		{
+			return false;
+		}
+		const char *end = text + std::strlen(text);
+		return std::from_chars(text, end, steamId).ptr == end && steamId > 76561197960265728ULL;
+	}
+
 	constexpr auto minimumConfirmationSpacing = std::chrono::seconds(30);
 
 	void ReplaceAll(std::string &value, const std::string &placeholder, const std::string &replacement)
@@ -291,6 +359,16 @@ CON_COMMAND(csvilka_webhook_test, "Send a harmless Discord webhook test")
 {
 	(void)args;
 	g_CSVILKA.TestWebhook();
+}
+
+CON_COMMAND(csvilka_evidence, "Show the stored confirmation evidence for a SteamID64, or for everyone")
+{
+	g_CSVILKA.PrintEvidence(args.ArgC() > 1 ? args.Arg(1) : nullptr);
+}
+
+CON_COMMAND(csvilka_pardon, "Clear the stored confirmation evidence for a SteamID64")
+{
+	g_CSVILKA.Pardon(args.ArgC() > 1 ? args.Arg(1) : nullptr);
 }
 
 CON_COMMAND(csvilka_config_loaded, "Confirm that csvilka.cfg finished loading")
@@ -653,6 +731,10 @@ void CSVILKAPlugin::HandleDetection(const char *detection, MovementPlayer *playe
 	const auto finish = [&](utils::DetectionOutcome outcome)
 	{
 		utils::AnnounceDetection(detection, player->GetName(), outcome);
+		if (settings::DetectionLogEnabled())
+		{
+			WriteDetectionLog(detection, playerName, steamId, outcome, SanitizeConsoleText(evidence.english.c_str()));
+		}
 		if (webhook)
 		{
 			webhook->Report(detection, player, evidence.localized, outcome);
@@ -670,6 +752,7 @@ void CSVILKAPlugin::HandleDetection(const char *detection, MovementPlayer *playe
 	{
 		Msg("[CSVILKA] Evidence: %s\n", SanitizeConsoleText(evidence.english.c_str()).c_str());
 	}
+	RunTemplateCommand(settings::GetDetectionCommand(), player, steamId, detection);
 	if (networkVetoed)
 	{
 		finish(utils::DetectionOutcome::NetworkUnstable);
@@ -884,6 +967,75 @@ void CSVILKAPlugin::PrintHelp() const
 	Msg("[CSVILKA] csvilka_check_config - Check the current settings without changing them.\n");
 	Msg("[CSVILKA] csvilka_test_announcement - Show a harmless chat and center-screen test without punishing anyone.\n");
 	Msg("[CSVILKA] csvilka_webhook_test - Send a harmless Discord test report.\n");
+	Msg("[CSVILKA] csvilka_evidence [steamid64] - Show stored ban-confirmation evidence.\n");
+	Msg("[CSVILKA] csvilka_pardon <steamid64> - Clear a player's ban-confirmation evidence.\n");
+}
+
+void CSVILKAPlugin::RunTemplateCommand(const char *commandTemplate, MovementPlayer *player, std::uint64_t steamId, const char *detection)
+{
+	if (!commandTemplate || !*commandTemplate || !interfaces::pEngine)
+	{
+		return;
+	}
+	const int userId = interfaces::pEngine->GetPlayerUserId(player->GetPlayerSlot()).Get();
+	std::string command = commandTemplate;
+	if ((steamId == 0 && command.find("{steamid64}") != std::string::npos) || (userId < 0 && command.find("{userid}") != std::string::npos))
+	{
+		return;
+	}
+	ReplaceAll(command, "{steamid64}", std::to_string(steamId));
+	ReplaceAll(command, "{userid}", std::to_string(userId));
+	ReplaceAll(command, "{detection}", detection);
+	if (command.size() + 1 >= static_cast<size_t>(CCommand::MaxCommandLength()))
+	{
+		return;
+	}
+	command.push_back('\n');
+	interfaces::pEngine->ServerCommand(command.c_str());
+}
+
+void CSVILKAPlugin::PrintEvidence(const char *steamIdText) const
+{
+	const auto now = std::chrono::steady_clock::now();
+	const auto window = std::chrono::seconds(settings::GetConfirmationWindow());
+	std::uint64_t filter = 0;
+	if (steamIdText && *steamIdText && !ParseSteamId(steamIdText, filter))
+	{
+		Msg("[CSVILKA] Usage: csvilka_evidence [steamid64]\n");
+		return;
+	}
+	int shown = 0;
+	for (const auto &[steamId, history] : confirmationHistory)
+	{
+		if (filter && steamId != filter)
+		{
+			continue;
+		}
+		int active = 0;
+		for (const auto &time : history)
+		{
+			active += now - time <= window ? 1 : 0;
+		}
+		Msg("[CSVILKA] %llu: %d of %d confirmations in the current window.\n", static_cast<unsigned long long>(steamId), active,
+			settings::GetBanConfirmations());
+		++shown;
+	}
+	if (!shown)
+	{
+		Msg("[CSVILKA] No stored confirmation evidence.\n");
+	}
+}
+
+void CSVILKAPlugin::Pardon(const char *steamIdText)
+{
+	std::uint64_t steamId = 0;
+	if (!ParseSteamId(steamIdText, steamId))
+	{
+		Msg("[CSVILKA] Usage: csvilka_pardon <steamid64>\n");
+		return;
+	}
+	const bool removed = confirmationHistory.erase(steamId) > 0;
+	Msg("[CSVILKA] %s confirmation evidence for %llu.\n", removed ? "Cleared" : "There was no", static_cast<unsigned long long>(steamId));
 }
 
 void CSVILKAPlugin::ReloadConfig()

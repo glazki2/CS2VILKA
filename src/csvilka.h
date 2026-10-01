@@ -79,6 +79,8 @@ public:
 	void PrintConfigSummary(bool reloaded) const;
 	void PrintStatus() const;
 	void PrintHelp() const;
+	void PrintEvidence(const char *steamIdText) const;
+	void Pardon(const char *steamIdText);
 	void ReloadConfig();
 	void OnConfigLoaded();
 	void CheckConfig() const;
@@ -102,6 +104,7 @@ private:
 		Ban,
 	};
 
+	void RunTemplateCommand(const char *commandTemplate, MovementPlayer *player, std::uint64_t steamId, const char *detection);
 	bool Activate(char *error, size_t maxlen, bool late);
 	void ProcessJoinWatermarks();
 	void ResetRuntime();
