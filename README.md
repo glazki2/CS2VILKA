@@ -4,6 +4,15 @@
 
 CSVILKA анализирует прицеливание, выстрелы, движение, нажатия кнопок и клиентские настройки, которые игроки отправляют серверу. Игрокам ничего устанавливать не нужно.
 
+## Скачать
+
+Готовые сборки (собраны GitHub Actions в Steam Runtime, нужен вход в GitHub, ссылки действуют до 30.12.2026):
+
+- **Linux x64:** [CSVILKA-1.0.14-linux-x64.zip](https://github.com/glazki2/CS2VILKA/actions/runs/36924480948/artifacts/11192879397)
+- **Windows x64:** [CSVILKA-1.0.14-windows-x64.zip](https://github.com/glazki2/CS2VILKA/actions/runs/36924480948/artifacts/11193601602)
+
+Свежие сборки после каждого коммита — во вкладке [Actions](https://github.com/glazki2/CS2VILKA/actions/workflows/build.yml) (раздел Artifacts внизу запуска).
+
 ## Главное отличие: защита от ложных банов
 
 Статистический детект (аим, движение, тайминги) сам по себе **не банит**. Бан отправляется только когда:
