@@ -1,0 +1,105 @@
+# vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
+import os
+
+
+def collectPluginSources(platform):
+  sources = []
+  source_root = os.path.join(builder.sourcePath, 'src')
+  for root, _, filenames in os.walk(source_root):
+    for filename in filenames:
+      if not filename.endswith('.cpp'):
+        continue
+      if root.endswith(os.path.join('clientcvar', 'dynlibutils')) and filename in ('module_windows.cpp', 'module_linux.cpp'):
+        continue
+      if platform == 'windows' and filename.endswith('_linux.cpp'):
+        continue
+      if platform == 'linux' and filename.endswith(('_win.cpp', '_windows.cpp')):
+        continue
+      sources.append(os.path.join(root, filename))
+  return sorted(sources)
+
+
+def createProtobufLibrary(sdk_target, sdk, cxx):
+  sources = [
+    os.path.join(sdk['path'], 'common', 'valveextensions.proto'),
+    os.path.join(sdk['path'], 'common', 'network_connection.proto'),
+    os.path.join(sdk['path'], 'common', 'networkbasetypes.proto'),
+    os.path.join(sdk['path'], 'common', 'source2_steam_stats.proto'),
+    os.path.join(sdk['path'], 'common', 'netmessages.proto'),
+    os.path.join(sdk['path'], 'game', 'shared', 'gameevents.proto'),
+    os.path.join(sdk['path'], 'game', 'shared', 'usermessages.proto'),
+    os.path.join(sdk['path'], 'game', 'shared', 'usercmd.proto'),
+    os.path.join(sdk['path'], 'game', 'shared', 'cs', 'cs_gameevents.proto'),
+    os.path.join(sdk['path'], 'game', 'shared', 'cs', 'cs_usercmd.proto'),
+    os.path.join(sdk['path'], 'networksystem', 'networksystem_protomessages.proto'),
+  ]
+  protoc = builder.tools.Protoc(protoc=sdk_target.protoc, sources=sources)
+  protoc.protoc.includes += [
+    os.path.join(sdk['path'], 'thirdparty', 'protobuf-3.21.8', 'src'),
+    os.path.join(sdk['path'], 'common'),
+    os.path.join(sdk['path'], 'game', 'shared'),
+    os.path.join(sdk['path'], 'game', 'shared', 'cs'),
+    os.path.join(sdk['path'], 'networksystem'),
+  ]
+  protoc.protoc.includes = [path for path in protoc.protoc.includes if os.path.isdir(path)]
+
+  binary = MMSPlugin.HL2Library(builder, cxx, 'csvilka-protobuf', sdk, static=True)
+  if binary.compiler.family in ('gcc', 'clang'):
+    binary.compiler.defines += ['_GLIBCXX_USE_CXX11_ABI=0']
+  binary.custom = [protoc]
+  return builder.Add(binary).binary
+
+
+sdk_target = MMSPlugin.sdk_target
+sdk = sdk_target.sdk
+cxx = sdk_target.cxx
+
+protobuf = createProtobufLibrary(sdk_target, sdk, cxx)
+binary = MMSPlugin.HL2Library(builder, cxx, MMSPlugin.metadata['name'], sdk)
+
+if binary.compiler.family in ('gcc', 'clang'):
+  binary.compiler.defines += ['_GLIBCXX_USE_CXX11_ABI=0']
+
+if builder.options.opt == '1' and builder.options.debug != '1' and cxx.target.platform == 'linux':
+  binary.compiler.linkflags += ['-Wl,-s']
+
+binary.compiler.cxxincludes += [
+  os.path.join(builder.sourcePath, 'src'),
+  os.path.join(builder.sourcePath, 'src', 'clientcvar'),
+  os.path.join(builder.sourcePath, 'src', 'clientcvar', 'dynlibutils'),
+  os.path.join(builder.sourcePath, 'hl2sdk-cs2'),
+  os.path.join(builder.sourcePath, 'hl2sdk-cs2', 'public', 'entity2'),
+  os.path.join(builder.sourcePath, 'hl2sdk-cs2', 'game', 'server'),
+  os.path.join(builder.sourcePath, 'vendor', 'funchook', 'include'),
+  os.path.join(builder.buildPath, 'csvilka-protobuf',
+               '{}-{}'.format(cxx.target.platform, cxx.target.arch)),
+]
+
+binary.sources += [
+  os.path.join(sdk['path'], 'entity2', 'entityidentity.cpp'),
+  os.path.join(sdk['path'], 'entity2', 'entitysystem.cpp'),
+  os.path.join(builder.sourcePath, 'src', 'vendor', 'miniz.c'),
+]
+binary.compiler.defines += ['MINIZ_NO_ARCHIVE_WRITING_APIS', 'MINIZ_NO_ZLIB_APIS']
+binary.sources += collectPluginSources(cxx.target.platform)
+binary.compiler.postlink.insert(0, protobuf)
+binary.compiler.sourcedeps += [protobuf]
+
+if cxx.target.platform == 'windows':
+  binary.compiler.postlink += [
+    'psapi.lib',
+    os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'funchook.lib'),
+    os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'distorm.lib'),
+    os.path.join(sdk['path'], 'lib', 'public', 'win64', 'mathlib.lib'),
+    os.path.join(sdk['path'], 'lib', 'public', 'win64', 'steam_api64.lib'),
+    'delayimp.lib',
+  ]
+  binary.compiler.linkflags += ['/DELAYLOAD:steam_api64.dll']
+else:
+  binary.compiler.postlink += [
+    os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'libfunchook.a'),
+    os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'libdistorm.a'),
+    os.path.join(sdk['path'], 'lib', 'linux64', 'mathlib.a'),
+  ]
+
+MMSPlugin.binaries = [builder.Add(binary)]

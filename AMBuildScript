@@ -1,0 +1,205 @@
+# vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
+import json
+import os
+
+
+class MMSPluginConfig(object):
+  def __init__(self):
+    self.mms_root = self.requireDirectory(
+      os.path.join(builder.sourcePath, 'metamod-source'), 'Metamod:Source')
+    manifests_root = self.requireDirectory(
+      os.path.join(self.mms_root, 'hl2sdk-manifests'), 'HL2SDK manifests')
+
+    self.sdk_helpers = builder.Eval(os.path.join(manifests_root, 'SdkHelpers.ambuild'), {
+      'Project': 'metamod'
+    })
+    self.sdk_manifests = []
+    self.sdk_target = None
+    self.binaries = []
+    self.version_header_deps = []
+    self.metadata = self.loadMetadata()
+
+    self.target = builder.DetectCxx(target_arch='x86_64')
+    if self.target.target.arch != 'x86_64':
+      raise Exception('CSVILKA only builds for x86_64.')
+    if self.target.target.platform == 'windows' and self.target.family != 'msvc':
+      raise Exception('The Windows build needs the Microsoft C++ compiler.')
+    if self.target.target.platform == 'linux' and self.target.family != 'clang':
+      raise Exception('The Linux build needs Clang.')
+    if self.target.target.platform not in ('windows', 'linux'):
+      raise Exception('CSVILKA only builds for Windows or Linux.')
+
+  @staticmethod
+  def requireDirectory(path, description):
+    path = os.path.abspath(os.path.normpath(path))
+    if not os.path.isdir(path):
+      raise Exception('{} is missing at {}.'.format(description, path))
+    return path
+
+  def loadMetadata(self):
+    path = os.path.join(builder.sourcePath, 'plugin-metadata.json')
+    builder.AddConfigureFile(path)
+    with open(path, 'r', encoding='utf-8') as fp:
+      metadata = json.load(fp)
+
+    required = (
+      'name', 'alias', 'display_name', 'description', 'author',
+      'url', 'log_tag', 'license', 'version'
+    )
+    missing = [key for key in required if key not in metadata]
+    if missing:
+      raise Exception('plugin-metadata.json is missing: {}.'.format(', '.join(missing)))
+    if metadata['name'] != 'csvilka' or metadata['alias'] != 'csvilka':
+      raise Exception('The plugin name and alias must both stay csvilka.')
+    if metadata['version'] != '1.0.14':
+      raise Exception('The CSVILKA version must be 1.0.14.')
+    return metadata
+
+  def findSdkPath(self, sdk_name):
+    path = os.path.join(builder.sourcePath, 'hl2sdk-{}'.format(sdk_name))
+    return path if os.path.isdir(path) else None
+
+  def detectSDK(self):
+    self.sdk_helpers.find_sdk_path = self.findSdkPath
+    self.sdk_helpers.findSdks(builder, [self.target], ['cs2'])
+    self.sdk_manifests = self.sdk_helpers.sdk_manifests
+    self.sdk_target = self.sdk_helpers.sdk_targets[0]
+
+  def generateVersionHeader(self):
+    def value(key):
+      return json.dumps(self.metadata[key])
+
+    contents = '''#ifndef CSVILKA_VERSION_GEN_H
+#define CSVILKA_VERSION_GEN_H
+
+#define PLUGIN_NAME {name}
+#define PLUGIN_ALIAS {alias}
+#define PLUGIN_DISPLAY_NAME {display_name}
+#define PLUGIN_DESCRIPTION {description}
+#define PLUGIN_AUTHOR {author}
+#define PLUGIN_URL {url}
+#define PLUGIN_LOGTAG {log_tag}
+#define PLUGIN_LICENSE {license}
+#define PLUGIN_FULL_VERSION {version}
+#define PLUGIN_REVISION_SHORT "0"
+#define PLUGIN_REVISION_LONG "0"
+#define PLUGIN_REVISION_COUNT "0"
+
+#endif
+'''.format(**{key: value(key) for key in self.metadata})
+
+    builder.SetBuildFolder('/')
+    self.version_header_deps = [
+      builder.AddOutputFile(
+        os.path.join('versioning', 'version_gen.h'), contents.encode('utf-8'))
+    ]
+
+  def configureCXX(self, cxx):
+    if cxx.target.platform == 'linux':
+      cxx.defines += [
+        'stricmp=strcasecmp',
+        '_stricmp=strcasecmp',
+        '_snprintf=snprintf',
+        '_vsnprintf=vsnprintf',
+        'HAVE_STDINT_H',
+        'GNUC',
+        'LINUX',
+        '_LINUX',
+        'POSIX',
+        '_FILE_OFFSET_BITS=64',
+      ]
+      cxx.cflags += [
+        '-pipe',
+        '-fno-strict-aliasing',
+        '-Wall',
+        '-Werror',
+        '-Wno-sign-compare',
+        '-Wno-uninitialized',
+        '-Wno-unused',
+        '-Wno-switch',
+        '-fPIC',
+        '-fvisibility=hidden',
+        '-fno-omit-frame-pointer',
+      ]
+      cxx.cxxflags += [
+        '-std=c++17',
+        '-fno-exceptions',
+        '-frtti',
+        '-fno-threadsafe-statics',
+        '-fvisibility-inlines-hidden',
+        '-Wno-delete-non-virtual-dtor',
+        '-Wno-non-virtual-dtor',
+        '-Wno-overloaded-virtual',
+        '-Wno-register',
+        '-Wno-invalid-offsetof',
+        '-Wno-parentheses',
+      ]
+      cxx.linkflags += ['-fuse-ld=lld', '-Wl,--no-gnu-unique', '-static-libstdc++', '-lgcc_eh']
+    else:
+      cxx.defines += [
+        '_CRT_SECURE_NO_DEPRECATE',
+        '_CRT_SECURE_NO_WARNINGS',
+        '_CRT_NONSTDC_NO_DEPRECATE',
+        '_HAS_EXCEPTIONS=0',
+        '_ITERATOR_DEBUG_LEVEL=0',
+        'WIN32',
+        '_WINDOWS',
+      ]
+      cxx.cflags += [
+        '/MT', '/W3', '/WX', '/wd4005', '/wd4018', '/wd4099', '/wd4146',
+        '/wd4244', '/wd4267', '/wd5033', '/wd5048', '/std:c++17', '/Oy-',
+        '/experimental:deterministic',
+        '/pathmap:{}=CSVILKA'.format(builder.sourcePath),
+      ]
+      cxx.cxxflags += ['/TP']
+      cxx.linkflags += ['/WX', '/IGNORE:4099', '/NODEFAULTLIB:MSVCRT']
+      if builder.options.debug != '1':
+        cxx.linkflags += ['/DEBUG:NONE']
+
+    if builder.options.opt == '1':
+      cxx.defines += ['NDEBUG']
+      if cxx.target.platform == 'linux':
+        cxx.cflags += ['-O3']
+      else:
+        cxx.cflags += ['/Ox']
+        cxx.linkflags += ['/OPT:ICF', '/OPT:REF']
+
+    if builder.options.debug == '1':
+      cxx.defines += ['DEBUG', '_DEBUG']
+      if cxx.target.platform == 'linux':
+        cxx.cflags += ['-g3']
+      else:
+        cxx.cflags += ['/Od', '/RTC1', '/Zi']
+
+  def HL2Library(self, context, compiler, name, sdk, static=False):
+    binary = compiler.StaticLibrary(name) if static else compiler.Library(name)
+    cxx = binary.compiler
+    if builder.options.debug != '1':
+      cxx.symbol_files_ = None
+    self.configureCXX(cxx)
+
+    cxx.includes += [os.path.join(builder.buildPath, 'versioning')]
+    cxx.sourcedeps += self.version_header_deps
+    cxx.cxxincludes += [
+      context.currentSourcePath,
+      os.path.join(self.mms_root, 'core'),
+      os.path.join(self.mms_root, 'core', 'sourcehook'),
+    ]
+
+    for manifest in self.sdk_manifests:
+      cxx.defines += ['SE_{}={}'.format(manifest['define'], manifest['code'])]
+
+    cxx.defines += ['META_IS_SOURCE2']
+    binary.sources += [
+      os.path.join(sdk['path'], 'tier1', 'convar.cpp'),
+      os.path.join(sdk['path'], 'public', 'tier0', 'memoverride.cpp'),
+    ]
+    self.sdk_helpers.configureCxx(context, binary, sdk)
+    return binary
+
+
+MMSPlugin = MMSPluginConfig()
+MMSPlugin.detectSDK()
+MMSPlugin.generateVersionHeader()
+
+builder.Build(['AMBuilder', 'PackageScript'], {'MMSPlugin': MMSPlugin})

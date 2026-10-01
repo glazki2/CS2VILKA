@@ -1,0 +1,5 @@
+CSVILKA is a modified version of CS2AC 1.0.14 (https://gitlab.com/karola3vax/cs2ac-legacy),
+licensed under the GNU Affero General Public License v3.0.
+
+Modified in 2026: renamed to CSVILKA, added ban confirmation and observe mode,
+disabled automatic updates by default.

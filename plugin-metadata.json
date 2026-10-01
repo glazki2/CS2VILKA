@@ -1,0 +1,11 @@
+{
+    "name": "csvilka",
+    "alias": "csvilka",
+    "display_name": "CSVILKA",
+    "description": "Counter-Strike 2 server sided anti-cheat (CSVILKA).",
+    "author": "glazki2",
+    "url": "https://github.com/glazki2/cs2vilka",
+    "log_tag": "CSVILKA",
+    "license": "AGPL-3.0",
+    "version": "1.0.14"
+}

@@ -1,0 +1,78 @@
+# vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
+import os
+
+
+builder.SetBuildFolder('package')
+
+if len(MMSPlugin.binaries) != 1:
+  raise Exception('CSVILKA must produce exactly one plugin binary.')
+
+cxx = MMSPlugin.sdk_target.cxx
+platform_folder = {
+  'windows': 'win64',
+  'linux': 'linuxsteamrt64',
+}[cxx.target.platform]
+
+addons_root = os.path.join('game', 'csgo', 'addons')
+cfg_root = os.path.join('game', 'csgo', 'cfg')
+plugin_root = os.path.join(addons_root, 'csvilka')
+bin_path = os.path.join(plugin_root, 'bin', platform_folder)
+metamod_path = os.path.join(addons_root, 'metamod')
+gamedata_path = os.path.join(plugin_root, 'gamedata')
+licenses_path = os.path.join(plugin_root, 'licenses')
+translations_path = os.path.join(plugin_root, 'translations')
+builder.AddFolder(bin_path)
+builder.AddFolder(metamod_path)
+gamedata_folder = builder.AddFolder(gamedata_path)
+builder.AddFolder(licenses_path)
+translations_folder = builder.AddFolder(translations_path)
+cfg_folder = builder.AddFolder(cfg_root)
+
+task = MMSPlugin.binaries[0]
+extension = os.path.splitext(os.path.basename(task.binary.path))[1]
+builder.AddCopy(task.binary, os.path.join(bin_path, 'csvilka' + extension))
+builder.AddCopy(
+  os.path.join(builder.sourcePath, 'gamedata', 'csvilka.games.txt'),
+  gamedata_folder
+)
+builder.AddCopy(
+  os.path.join(builder.sourcePath, 'cfg', 'csvilka.cfg'),
+  cfg_folder
+)
+for filename in sorted(os.listdir(os.path.join(builder.sourcePath,
+                                                'translations'))):
+  if filename.endswith('.txt'):
+    builder.AddCopy(
+      os.path.join(builder.sourcePath, 'translations', filename),
+      translations_folder
+    )
+builder.AddCopy(
+  os.path.join(builder.sourcePath, 'THIRD_PARTY_NOTICES.md'),
+  os.path.join(plugin_root, 'THIRD_PARTY_NOTICES.md')
+)
+for source, target in (
+  ('LICENSE', 'CSVILKA-AGPL-3.0.txt'),
+  (os.path.join('licenses', 'CLIENTCVARVALUE-GPL-3.0.txt'),
+   'CLIENTCVARVALUE-GPL-3.0.txt'),
+  (os.path.join('licenses', 'DYNLIBUTILS-MIT.txt'), 'DYNLIBUTILS-MIT.txt'),
+  (os.path.join('licenses', 'CS2KZ-AGPL-3.0.txt'), 'CS2KZ-AGPL-3.0.txt'),
+  (os.path.join('licenses', 'FUNCHOOK.txt'), 'FUNCHOOK.txt'),
+  (os.path.join('licenses', 'DISTORM.txt'), 'DISTORM.txt'),
+  (os.path.join('licenses', 'PICOSHA2-MIT.txt'), 'PICOSHA2-MIT.txt'),
+  (os.path.join('licenses', 'MINIZ-MIT.txt'), 'MINIZ-MIT.txt'),
+  (os.path.join('metamod-source', 'LICENSE.txt'), 'METAMOD-SOURCE.txt'),
+  (os.path.join('hl2sdk-cs2', 'thirdparty', 'protobuf-3.21.8', 'LICENSE'),
+   'PROTOBUF.txt'),
+):
+  builder.AddCopy(
+    os.path.join(builder.sourcePath, source),
+    os.path.join(licenses_path, target)
+  )
+
+vdf = '''"Metamod Plugin"
+{{
+\t"alias"\t"csvilka"
+\t"file"\t"addons/csvilka/bin/{}/csvilka"
+}}
+'''.format(platform_folder)
+builder.AddOutputFile(os.path.join(metamod_path, 'csvilka.vdf'), vdf.encode('utf-8'))

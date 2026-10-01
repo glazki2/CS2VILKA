@@ -1,0 +1,23 @@
+#pragma once
+
+#include "cdetour.h"
+#include "movement/movement.h"
+
+#define DECLARE_MOVEMENT_DETOUR(name)        DECLARE_DETOUR(name, movement::Detour_##name)
+#define DECLARE_MOVEMENT_EXTERN_DETOUR(name) extern CDetour<decltype(movement::Detour_##name)> name
+
+DECLARE_MOVEMENT_EXTERN_DETOUR(PhysicsSimulate);
+DECLARE_MOVEMENT_EXTERN_DETOUR(ProcessUsercmds);
+DECLARE_MOVEMENT_EXTERN_DETOUR(SetupMove);
+DECLARE_MOVEMENT_EXTERN_DETOUR(ProcessMovement);
+DECLARE_MOVEMENT_EXTERN_DETOUR(Duck);
+DECLARE_MOVEMENT_EXTERN_DETOUR(LadderMove);
+DECLARE_MOVEMENT_EXTERN_DETOUR(OnJumpLegacy);
+DECLARE_MOVEMENT_EXTERN_DETOUR(OnJumpModern);
+DECLARE_MOVEMENT_EXTERN_DETOUR(AirMove);
+DECLARE_MOVEMENT_EXTERN_DETOUR(AirAccelerate);
+DECLARE_MOVEMENT_EXTERN_DETOUR(WalkMove);
+DECLARE_MOVEMENT_EXTERN_DETOUR(TryPlayerMove);
+DECLARE_MOVEMENT_EXTERN_DETOUR(CategorizePosition);
+
+bool FlushAllDetours();

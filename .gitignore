@@ -1,0 +1,9 @@
+build*/
+mbedtls-generated*/
+__pycache__/
+.vs/
+.vscode/
+.cache/
+.tools/
+dist/
+*.zip
