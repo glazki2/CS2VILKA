@@ -38,6 +38,7 @@ namespace utils
 		AwaitingConfirmation,
 		ObserveOnly,
 		Warmup,
+		ReportOnly,
 	};
 
 	void Initialize(std::vector<std::string> &missing);

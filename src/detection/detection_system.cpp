@@ -44,6 +44,18 @@ namespace detection
 		return weapon;
 	}
 
+	float ReadConVarFloat(const char *name, float fallback)
+	{
+		ConVarRefAbstract convar(name, true);
+		return convar.IsValidRef() && convar.IsConVarDataAvailable() ? convar.GetFloat() : fallback;
+	}
+
+	bool ReadConVarBool(const char *name, bool fallback)
+	{
+		ConVarRefAbstract convar(name, true);
+		return convar.IsValidRef() && convar.IsConVarDataAvailable() ? convar.GetBool() : fallback;
+	}
+
 	bool IsBallisticWeapon(std::string_view weapon)
 	{
 		weapon = NormalizeWeapon(weapon);
@@ -586,6 +598,8 @@ namespace detection
 		irregularBehavior.Load(announce);
 		inhumanAccuracy.Load(announce, &shots);
 		nameChanger.Load(announce);
+		recoil.Load(announce);
+		killPatterns.Load(announce);
 		settingsMask = settings::GetDetectionMask();
 		settingsRevision = settings::GetRevision();
 		teammatesAreEnemies = TeammatesAreEnemies();
@@ -604,6 +618,8 @@ namespace detection
 		irregularBehavior.Unload();
 		inhumanAccuracy.Unload();
 		nameChanger.Unload();
+		recoil.Unload();
+		killPatterns.Unload();
 		networkSafety.Reset();
 		shots.Reset();
 		settingsMask = 0;
@@ -624,6 +640,8 @@ namespace detection
 		irregularBehavior.Reset();
 		inhumanAccuracy.Reset();
 		nameChanger.Reset();
+		recoil.Reset();
+		killPatterns.Reset();
 		networkSafety.Reset();
 		shots.Reset();
 	}
@@ -690,6 +708,10 @@ namespace detection
 		{
 			antiAim.OnSetupMove(player, command, currentTick);
 		}
+		if (settings::IsDetectionEnabled(DetectionType::Recoil))
+		{
+			recoil.OnSetupMove(player, command, currentTick);
+		}
 	}
 
 	void DetectionSystem::OnGameFrame(int currentTick)
@@ -733,6 +755,14 @@ namespace detection
 		{
 			dllInjection.OnGameFrame();
 		}
+		if (settings::IsDetectionEnabled(DetectionType::Recoil))
+		{
+			recoil.OnGameFrame(currentTick);
+		}
+		if (settings::IsDetectionEnabled(DetectionType::Wallhack))
+		{
+			killPatterns.OnGameFrame(currentTick);
+		}
 		shots.Prune(currentTick);
 	}
 
@@ -757,6 +787,10 @@ namespace detection
 			if (settings::IsDetectionEnabled(DetectionType::Doubletap))
 			{
 				doubletap.OnWeaponFire(event, player, currentTick);
+			}
+			if (settings::IsDetectionEnabled(DetectionType::Recoil))
+			{
+				recoil.OnWeaponFire(event, player, currentTick);
 			}
 			if (ShotRecord *shot = shots.OnWeaponFire(event, player, currentTick))
 			{
@@ -788,6 +822,10 @@ namespace detection
 		}
 		else if (CSVILKA_STREQ(event->GetName(), "player_death"))
 		{
+			if (settings::IsDetectionEnabled(DetectionType::Wallhack) || settings::IsDetectionEnabled(DetectionType::NoFlash))
+			{
+				killPatterns.OnPlayerDeath(event, player);
+			}
 			if (ShotRecord *shot = shots.OnPlayerDeath(event, player, currentTick))
 			{
 				auto *attacker = g_pCSVILKAPlayerManager->ToPlayer(static_cast<u32>(shot->playerIndex));
@@ -844,6 +882,8 @@ namespace detection
 		irregularBehavior.OnClientDisconnect(player);
 		inhumanAccuracy.OnClientDisconnect(player);
 		nameChanger.OnClientDisconnect(player);
+		recoil.OnClientDisconnect(player);
+		killPatterns.OnClientDisconnect(player);
 		networkSafety.OnClientDisconnect(player);
 		shots.OnClientDisconnect(player);
 	}

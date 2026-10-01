@@ -10,11 +10,15 @@
 #include <deque>
 #include <string>
 #include <string_view>
+#include <vector>
+
+#include "detection/recoil_math.h"
 
 class IGameEvent;
 class MovementPlayer;
 class PlayerCommand;
 class CMsgTEFireBullets;
+class CCSPlayerPawn;
 
 namespace detection
 {
@@ -29,6 +33,9 @@ namespace detection
 	Vector AimForward(const QAngle &angles);
 	float AngularDistance(const QAngle &first, const QAngle &second);
 	std::string_view NormalizeWeapon(std::string_view weapon);
+	// Reads a game convar of any type, converting it, or returns the fallback when the convar is not available.
+	float ReadConVarFloat(const char *name, float fallback);
+	bool ReadConVarBool(const char *name, bool fallback);
 
 	struct NetworkSafetyEvidence
 	{
@@ -574,6 +581,108 @@ namespace detection
 		std::array<AccuracyPlayerData, MAXPLAYERS + 1> playerData;
 	};
 
+	struct RecoilShotSource
+	{
+		int serverTick {-1};
+		QAngle angles;
+		QAngle punch;
+		bool valid {};
+	};
+
+	struct RecoilIncident
+	{
+		Clock::time_point time;
+		float ratio {};
+		int bullets {};
+	};
+
+	struct RecoilPlayerData
+	{
+		RecoilShotSource latest;
+		std::vector<RecoilSample> spray;
+		std::string weapon;
+		std::deque<RecoilIncident> incidents;
+		int lastFireTick {-1};
+	};
+
+	// Detects automatic-weapon sprays whose bullet-to-bullet recoil is cancelled almost perfectly.
+	class RecoilModule
+	{
+	public:
+		void Load(AnnounceCallback announce);
+		void Unload();
+		void Reset();
+		void OnSetupMove(MovementPlayer *player, PlayerCommand *command, int currentTick);
+		void OnWeaponFire(IGameEvent *event, MovementPlayer *player, int currentTick);
+		void OnGameFrame(int currentTick);
+		void OnClientDisconnect(MovementPlayer *player);
+
+	private:
+		bool ReadPunch(CCSPlayerPawn *pawn, QAngle &punch);
+		void FinishSpray(MovementPlayer *player, RecoilPlayerData &data);
+
+		enum class PunchSource : std::uint8_t
+		{
+			Unknown,
+			Pawn,
+			PawnBase,
+			Unavailable,
+		};
+
+		AnnounceCallback announce {};
+		PunchSource punchSource {PunchSource::Unknown};
+		std::array<RecoilPlayerData, MAXPLAYERS + 1> playerData;
+	};
+
+	struct UnseenKill
+	{
+		Clock::time_point time;
+		int victimIndex {-1};
+	};
+
+	struct BlindKill
+	{
+		Clock::time_point time;
+		int victimIndex {-1};
+		float distance {};
+		bool headshot {};
+	};
+
+	struct KillPatternPlayerData
+	{
+		// Indexed by the target this player spotted.
+		std::array<Clock::time_point, MAXPLAYERS + 1> lastSpotted {};
+		std::array<bool, MAXPLAYERS + 1> spottedOnce {};
+		Clock::time_point lastSpottedAnyone;
+		bool spottedAnyone {};
+		std::deque<UnseenKill> unseenHeadshots;
+		std::deque<BlindKill> blindKills;
+	};
+
+	// Detects kill patterns that need information the killer could not see: bursts of headshot kills on enemies the
+	// killer's own view never spotted (WALLHACK), and repeated long-range kills while fully flashed (NOFLASH).
+	class KillPatternModule
+	{
+	public:
+		void Load(AnnounceCallback announce);
+		void Unload();
+		void Reset();
+		void OnGameFrame(int currentTick);
+		void OnPlayerDeath(IGameEvent *event, MovementPlayer *victim);
+		void OnClientDisconnect(MovementPlayer *player);
+
+	private:
+		void PollSpotting(Clock::time_point now);
+		void EvaluateUnseenKill(MovementPlayer *attacker, MovementPlayer *victim, CCSPlayerPawn *victimPawn, Clock::time_point now);
+		void EvaluateBlindKill(MovementPlayer *attacker, MovementPlayer *victim, CCSPlayerPawn *victimPawn, bool headshot, Clock::time_point now);
+
+		AnnounceCallback announce {};
+		std::array<KillPatternPlayerData, MAXPLAYERS + 1> playerData;
+		Clock::time_point lastSpottingSeen;
+		bool spottingSeen {};
+		int lastPollTick {-1};
+	};
+
 	struct NameChangerPlayerData
 	{
 		std::string lastName;
@@ -627,6 +736,8 @@ namespace detection
 		IrregularBehaviorModule irregularBehavior;
 		InhumanAccuracyModule inhumanAccuracy;
 		NameChangerModule nameChanger;
+		RecoilModule recoil;
+		KillPatternModule killPatterns;
 		std::uint64_t settingsMask {};
 		std::uint64_t settingsRevision {};
 		bool teammatesAreEnemies {};

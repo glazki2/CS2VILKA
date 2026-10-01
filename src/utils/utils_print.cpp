@@ -357,6 +357,8 @@ static std::string DetectionOutcomeText(utils::DetectionOutcome outcome)
 		case utils::DetectionOutcome::AwaitingConfirmation:
 			return localization::Get("announcement.outcome.awaiting_confirmation",
 									 ". The evidence was recorded and needs confirmation before any punishment.");
+		case utils::DetectionOutcome::ReportOnly:
+			return localization::Get("announcement.outcome.report_only", ". It was reported to administrators only.");
 		case utils::DetectionOutcome::Warmup:
 			return localization::Get("announcement.outcome.warmup", ". It is warmup, so no punishment was sent.");
 		case utils::DetectionOutcome::ObserveOnly:

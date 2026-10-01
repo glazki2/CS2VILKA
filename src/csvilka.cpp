@@ -7,6 +7,7 @@
 #include "sdk/cgameresourceserviceserver.h"
 #include "sdk/navphysicsinterface.h"
 #include "settings.h"
+#include "ban_history.h"
 #include "updater.h"
 #include "webhook.h"
 #include "utils/addresses.h"
@@ -38,13 +39,18 @@ namespace
 	static constexpr const char *detectionNames[] = {
 		"AIMBOT",    "AIMLOCK",     "ANTIAIM",          "AUTOSTRAFE",   "BHOP",          "DLL INJECTION",      "DESUBTICKING",
 		"DOUBLETAP", "HYPERSCROLL", "INHUMAN ACCURACY", "INVALID CVAR", "INVALID INPUT", "IRREGULAR BEHAVIOR", "NAMECHANGER",
-		"NULLS",     "SILENTAIM",   "SUBTICK SPAM",     "TRIGGERBOT",
+		"NULLS",     "SILENTAIM",   "SUBTICK SPAM",     "TRIGGERBOT",   "RECOIL",        "WALLHACK",           "NOFLASH",
 	};
 	static_assert(CSVILKA_ARRAYSIZE(detectionNames) == static_cast<size_t>(DetectionType::Count));
 
 	void HandleDetectionCallback(const char *detection, MovementPlayer *player, const localization::Text &evidence)
 	{
 		g_CSVILKA.HandleDetection(detection, player, evidence);
+	}
+
+	void HandleBanHistoryCallback(const BanHistoryRecord &record)
+	{
+		g_CSVILKA.HandleBanHistory(record);
 	}
 
 	void HandleNetworkVetoDetectionCallback(const char *detection, MovementPlayer *player, const localization::Text &evidence)
@@ -64,13 +70,28 @@ namespace
 		return CSVILKA_STREQI(detection, "DLL INJECTION") || CSVILKA_STREQI(detection, "INVALID CVAR") || CSVILKA_STREQI(detection, "INVALID INPUT");
 	}
 
+	// New detectors that have not been validated on real servers yet. Unless csvilka_experimental_enforce is enabled they only
+	// report to administrators: no public announcement, no evidence points, and no punishment.
+	bool IsExperimentalDetection(const char *detection)
+	{
+		return CSVILKA_STREQI(detection, "RECOIL") || CSVILKA_STREQI(detection, "WALLHACK") || CSVILKA_STREQI(detection, "NOFLASH");
+	}
+
+	// Outcomes that mean the detection is not confirmed. Announcing them publicly could accuse an honest player.
+	bool IsUnconfirmedOutcome(utils::DetectionOutcome outcome)
+	{
+		return outcome == utils::DetectionOutcome::AwaitingConfirmation || outcome == utils::DetectionOutcome::Warmup
+			   || outcome == utils::DetectionOutcome::NetworkUnstable || outcome == utils::DetectionOutcome::ObserveOnly
+			   || outcome == utils::DetectionOutcome::ReportOnly;
+	}
+
 	// Heuristic detectors that honest players with good aim or movement can occasionally trip.
 	// They count half and can never ban on their own: a strong detector must corroborate them.
 	bool IsWeakDetection(const char *detection)
 	{
 		return CSVILKA_STREQI(detection, "IRREGULAR BEHAVIOR") || CSVILKA_STREQI(detection, "INHUMAN ACCURACY")
 			   || CSVILKA_STREQI(detection, "TRIGGERBOT") || CSVILKA_STREQI(detection, "DOUBLETAP") || CSVILKA_STREQI(detection, "AUTOSTRAFE")
-			   || CSVILKA_STREQI(detection, "HYPERSCROLL");
+			   || CSVILKA_STREQI(detection, "HYPERSCROLL") || IsExperimentalDetection(detection);
 	}
 
 	struct EvidenceScore
@@ -118,6 +139,8 @@ namespace
 				return "observe-only";
 			case utils::DetectionOutcome::Warmup:
 				return "warmup";
+			case utils::DetectionOutcome::ReportOnly:
+				return "report-only";
 		}
 		return "unknown";
 	}
@@ -450,6 +473,20 @@ bool CSVILKAPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen,
 		}
 		return false;
 	}
+	banHistory = new (std::nothrow) BanHistoryService;
+	if (!banHistory)
+	{
+		delete updater;
+		updater = nullptr;
+		delete webhook;
+		webhook = nullptr;
+		settings::Shutdown();
+		if (error && maxlen)
+		{
+			snprintf(error, maxlen, "CSVILKA could not reserve memory for Steam ban history checks.");
+		}
+		return false;
+	}
 	if (late)
 	{
 		if (!Activate(error, maxlen, true))
@@ -637,6 +674,7 @@ bool CSVILKAPlugin::Activate(char *error, size_t maxlen, bool late)
 
 	loaded = true;
 	updater->Start();
+	banHistory->Start(HandleBanHistoryCallback);
 	ResetRuntime();
 	configReloadPending = true;
 	configLoadFailed = false;
@@ -742,6 +780,10 @@ void CSVILKAPlugin::OnGameFrame(bool simulating)
 	{
 		updater->OnGameFrame();
 	}
+	if (banHistory)
+	{
+		banHistory->OnGameFrame();
+	}
 	ProcessJoinWatermarks();
 }
 
@@ -781,7 +823,10 @@ void CSVILKAPlugin::HandleDetection(const char *detection, MovementPlayer *playe
 	const std::uint64_t steamId = player->GetSteamId64(false);
 	const auto finish = [&](utils::DetectionOutcome outcome)
 	{
-		utils::AnnounceDetection(detection, player->GetName(), outcome);
+		if (outcome != utils::DetectionOutcome::ReportOnly && (!IsUnconfirmedOutcome(outcome) || settings::AnnounceUnconfirmed()))
+		{
+			utils::AnnounceDetection(detection, player->GetName(), outcome);
+		}
 		if (settings::DetectionLogEnabled())
 		{
 			WriteDetectionLog(detection, playerName, steamId, outcome, SanitizeConsoleText(evidence.english.c_str()));
@@ -804,6 +849,12 @@ void CSVILKAPlugin::HandleDetection(const char *detection, MovementPlayer *playe
 		Msg("[CSVILKA] Evidence: %s\n", SanitizeConsoleText(evidence.english.c_str()).c_str());
 	}
 	RunTemplateCommand(settings::GetDetectionCommand(), player, steamId, detection);
+	if (IsExperimentalDetection(detection) && !settings::ExperimentalEnforce())
+	{
+		finish(utils::DetectionOutcome::ReportOnly);
+		Msg("[CSVILKA] %s is experimental, so it was only reported to administrators.\n", detection);
+		return;
+	}
 	if (networkVetoed)
 	{
 		finish(utils::DetectionOutcome::NetworkUnstable);
@@ -1037,27 +1088,28 @@ void CSVILKAPlugin::PrintHelp() const
 	Msg("[CSVILKA] csvilka_pardon <steamid64> - Clear a player's ban-confirmation evidence.\n");
 }
 
-void CSVILKAPlugin::RunTemplateCommand(const char *commandTemplate, MovementPlayer *player, std::uint64_t steamId, const char *detection)
+bool CSVILKAPlugin::RunTemplateCommand(const char *commandTemplate, MovementPlayer *player, std::uint64_t steamId, const char *detection)
 {
 	if (!commandTemplate || !*commandTemplate || !interfaces::pEngine)
 	{
-		return;
+		return false;
 	}
 	const int userId = interfaces::pEngine->GetPlayerUserId(player->GetPlayerSlot()).Get();
 	std::string command = commandTemplate;
 	if ((steamId == 0 && command.find("{steamid64}") != std::string::npos) || (userId < 0 && command.find("{userid}") != std::string::npos))
 	{
-		return;
+		return false;
 	}
 	ReplaceAll(command, "{steamid64}", std::to_string(steamId));
 	ReplaceAll(command, "{userid}", std::to_string(userId));
 	ReplaceAll(command, "{detection}", detection);
 	if (command.size() + 1 >= static_cast<size_t>(CCommand::MaxCommandLength()))
 	{
-		return;
+		return false;
 	}
 	command.push_back('\n');
 	interfaces::pEngine->ServerCommand(command.c_str());
+	return true;
 }
 
 void CSVILKAPlugin::PrintEvidence(const char *steamIdText) const
@@ -1109,6 +1161,51 @@ void CSVILKAPlugin::Pardon(const char *steamIdText)
 	Msg("[CSVILKA] %s confirmation evidence for %llu.\n", removed ? "Cleared" : "There was no", static_cast<unsigned long long>(steamId));
 }
 
+void CSVILKAPlugin::HandleBanHistory(const BanHistoryRecord &record)
+{
+	MovementPlayer *player = nullptr;
+	for (u32 index = 1; g_pCSVILKAPlayerManager && index <= MAXPLAYERS && !player; ++index)
+	{
+		auto *candidate = g_pCSVILKAPlayerManager->ToPlayer(index);
+		if (candidate && candidate->IsConnected() && candidate->GetSteamId64(true) == record.steamId)
+		{
+			player = candidate;
+		}
+	}
+	const std::string playerName = player ? SanitizeConsoleText(player->GetName()) : "<disconnected>";
+	const localization::Text evidence = localization::Format(
+		"evidence.ban_history", "Steam reports {vac} VAC ban(s) and {game} game ban(s) on this account. The most recent ban was {days} days ago.",
+		{{"vac", tfm::format("%d", record.vacBans)},
+		 {"game", tfm::format("%d", record.gameBans)},
+		 {"days", tfm::format("%d", record.daysSinceLastBan)}});
+	Msg("[CSVILKA] Steam ban history for %s (SteamID64 %llu): %d VAC, %d game, last ban %d days ago.\n", playerName.c_str(),
+		static_cast<unsigned long long>(record.steamId), record.vacBans, record.gameBans, record.daysSinceLastBan);
+
+	utils::DetectionOutcome outcome = utils::DetectionOutcome::ReportOnly;
+	const int kickDays = settings::GetBanHistoryKickDays();
+	if (player && kickDays > 0 && record.daysSinceLastBan <= kickDays)
+	{
+		if (settings::IsPlayerWhitelisted(record.steamId))
+		{
+			outcome = utils::DetectionOutcome::Whitelisted;
+		}
+		else if (RunTemplateCommand(settings::GetKickCommand(), player, record.steamId, "BAN HISTORY"))
+		{
+			outcome = utils::DetectionOutcome::PunishmentSent;
+			Msg("[CSVILKA] %s was kicked because their last Steam ban is %d days old (limit %d).\n", playerName.c_str(), record.daysSinceLastBan,
+				kickDays);
+		}
+	}
+	if (settings::DetectionLogEnabled())
+	{
+		WriteDetectionLog("BAN HISTORY", playerName, record.steamId, outcome, SanitizeConsoleText(evidence.english.c_str()));
+	}
+	if (webhook && player)
+	{
+		webhook->Report("BAN HISTORY", player, evidence.localized, outcome);
+	}
+}
+
 void CSVILKAPlugin::ReloadConfig()
 {
 	if (configReloadPending)
@@ -1141,6 +1238,10 @@ void CSVILKAPlugin::OnConfigLoaded()
 	if (webhook)
 	{
 		webhook->Reload();
+	}
+	if (banHistory)
+	{
+		banHistory->Reload();
 	}
 	PrintConfigSummary(reloaded);
 	CheckConfig();
@@ -1201,6 +1302,17 @@ void CSVILKAPlugin::CheckConfig() const
 	if (MovementDetectionService::IsSvCheatsTestingAllowed())
 	{
 		Msg("[CSVILKA] Review sv_cheats testing: inherited movement detections are allowed while sv_cheats is on.\n");
+		++findings;
+	}
+	const char *steamApiKey = settings::GetSteamApiKey();
+	if (steamApiKey && *steamApiKey && !BanHistoryService::IsValidApiKey(steamApiKey))
+	{
+		Msg("[CSVILKA] Review csvilka_steam_api_key: a Steam Web API key has exactly 32 hexadecimal characters.\n");
+		++findings;
+	}
+	if (settings::GetBanHistoryKickDays() > 0 && (!settings::GetKickCommand() || !*settings::GetKickCommand()))
+	{
+		Msg("[CSVILKA] Review csvilka_ban_history_kick_days: it needs csvilka_kick_command to kick anyone.\n");
 		++findings;
 	}
 
@@ -1301,6 +1413,13 @@ void CSVILKAPlugin::PrintStatus() const
 	Msg("[CSVILKA] Punishments: permanent ban %s, kick %s.\n",
 		settings::GetPunishmentCommand() && *settings::GetPunishmentCommand() ? "configured" : "disabled",
 		settings::GetKickCommand() && *settings::GetKickCommand() ? "configured" : "disabled");
+	Msg("[CSVILKA] False-positive protection: %d confirmation point%s within %d seconds, observe mode %s, warmup grace %s, unconfirmed "
+		"announcements %s, experimental detectors %s.\n",
+		settings::GetBanConfirmations(), settings::GetBanConfirmations() == 1 ? "" : "s", settings::GetConfirmationWindow(),
+		settings::ObserveMode() ? "on" : "off", settings::IgnoreWarmup() ? "on" : "off", settings::AnnounceUnconfirmed() ? "on" : "off",
+		settings::ExperimentalEnforce() ? "enforced" : "report only");
+	Msg("[CSVILKA] Steam ban history: %s, %zu account%s checked, kick limit %d days.\n", banHistory ? banHistory->Status() : "unavailable",
+		banHistory ? banHistory->CheckedCount() : 0, banHistory && banHistory->CheckedCount() == 1 ? "" : "s", settings::GetBanHistoryKickDays());
 	const size_t webhookQueueSize = webhook ? webhook->QueueSize() : 0;
 	Msg("[CSVILKA] Discord webhook: %s, %zu queued report%s.\n",
 		webhook && webhook->IsConfigured() ? (webhook->IsDisabled() ? "disabled after an error" : "configured") : "not configured", webhookQueueSize,
@@ -1344,6 +1463,12 @@ void CSVILKAPlugin::CleanupRuntime()
 		updater->Unload();
 		delete updater;
 		updater = nullptr;
+	}
+	if (banHistory)
+	{
+		banHistory->Unload();
+		delete banHistory;
+		banHistory = nullptr;
 	}
 	bool sourceHooksRemoved = hooks::Cleanup();
 	utils::ResetDetectionAnnouncement();

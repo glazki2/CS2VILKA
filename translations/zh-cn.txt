@@ -12,6 +12,7 @@
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
 	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
+	"announcement.outcome.report_only"	". It was reported to administrators only."
 	"announcement.test"	"这是一条测试消息。没有玩家被检测或处罚。"
 
 	"evidence.aimbot.snap_return"	"CSVILKA发现{incidents}具有破坏性的射击，射击过程中目标会跳跃并立即返回。最近的跳跃是 {snap} 度。"
@@ -66,6 +67,10 @@
 	"evidence.invalid_cvar.sv_cheats"	"服务器已关闭 sv_cheats，但客户端的值为开启或无效。"
 	"evidence.invalid_cvar.enabled_without_cheats"	"服务器已关闭 sv_cheats，但客户端启用了 {cvar}。"
 	"evidence.invalid_cvar.disabled_without_cheats"	"服务器已关闭 sv_cheats，但客户端关闭了 {cvar}。"
+	"evidence.recoil"	"In {sprays} automatic-weapon sprays within ten minutes the player cancelled the weapon's recoil almost perfectly, bullet by bullet. Only {best}% of the recoil zig-zag was left after their aim corrections in the best spray ({limit}% or less is flagged; human sprays leave far more). The latest spray had {bullets} bullets with the {weapon}."
+	"evidence.wallhack"	"The player made {kills} headshot kills on {victims} different enemies within {seconds} seconds, and none of those enemies had been spotted by the player's own view in the previous {unseen} seconds. Killing several enemies in a row before ever seeing them requires knowing where they are."
+	"evidence.noflash"	"The game reported the player as blinded by a flashbang during {kills} kills on {victims} different enemies within {seconds} seconds. {headshots} were headshots, and the closest of these kills was {distance} units away. A fully flashed screen is white, so such kills point to a removed flash effect."
+	"evidence.ban_history"	"Steam reports {vac} VAC ban(s) and {game} game ban(s) on this account. The most recent ban was {days} days ago."
 
 	"webhook.field.player"	"玩家"
 	"webhook.field.steamid64"	"STEAMID64"
@@ -85,6 +90,7 @@
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
 	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
+	"webhook.outcome.report_only"	"Reported to administrators only. Nothing was announced in chat and no punishment was sent."
 	"webhook.outcome.unavailable"	"没有可用的处罚结果。"
 	"webhook.unknown_player"	"未知玩家"
 	"webhook.unknown_detection"	"未知"

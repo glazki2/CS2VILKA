@@ -23,6 +23,9 @@ enum class DetectionType : std::uint8_t
 	SilentAim,
 	SubtickSpam,
 	Triggerbot,
+	Recoil,
+	Wallhack,
+	NoFlash,
 	Count,
 };
 
@@ -46,6 +49,11 @@ namespace settings
 	const char *GetKickCommand();
 	bool ObserveMode();
 	bool IgnoreWarmup();
+	bool BanHistoryEnabled();
+	const char *GetSteamApiKey();
+	int GetBanHistoryKickDays();
+	bool ExperimentalEnforce();
+	bool AnnounceUnconfirmed();
 	bool DetectionLogEnabled();
 	const char *GetDetectionCommand();
 	int GetBanConfirmations();

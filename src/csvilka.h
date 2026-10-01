@@ -10,6 +10,8 @@
 #include <deque>
 #include <unordered_map>
 
+class BanHistoryService;
+struct BanHistoryRecord;
 class WebhookService;
 class UpdaterService;
 class CMsgTEFireBullets;
@@ -80,6 +82,7 @@ public:
 	void PrintStatus() const;
 	void PrintHelp() const;
 	void PrintEvidence(const char *steamIdText) const;
+	void HandleBanHistory(const BanHistoryRecord &record);
 	void Pardon(const char *steamIdText);
 	void ReloadConfig();
 	void OnConfigLoaded();
@@ -104,7 +107,7 @@ private:
 		Ban,
 	};
 
-	void RunTemplateCommand(const char *commandTemplate, MovementPlayer *player, std::uint64_t steamId, const char *detection);
+	bool RunTemplateCommand(const char *commandTemplate, MovementPlayer *player, std::uint64_t steamId, const char *detection);
 	bool Activate(char *error, size_t maxlen, bool late);
 	void ProcessJoinWatermarks();
 	void ResetRuntime();
@@ -134,6 +137,7 @@ private:
 	detection::DetectionSystem detectionSystem;
 	WebhookService *webhook {};
 	UpdaterService *updater {};
+	BanHistoryService *banHistory {};
 	std::array<JoinWatermarkState, MAXPLAYERS + 1> joinWatermarks {};
 	std::array<PunishmentLevel, MAXPLAYERS + 1> punishmentLevels {};
 

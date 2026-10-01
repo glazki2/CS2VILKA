@@ -16,6 +16,9 @@ class CCSPlayerPawnBase : public CBasePlayerPawn
 {
 public:
 	DECLARE_SCHEMA_CLASS_ENTITY(CCSPlayerPawnBase);
+
+	// Optional: older builds kept the aim punch on the base pawn. Read it only after schema::HasField confirms it.
+	SCHEMA_FIELD(QAngle, m_aimPunchAngle)
 };
 
 class CCSPlayerPawn : public CCSPlayerPawnBase
@@ -29,4 +32,6 @@ public:
 	SCHEMA_FIELD(EntitySpottedState_t, m_entitySpottedState)
 	SCHEMA_FIELD(bool, m_bOnGroundLastTick)
 	SCHEMA_FIELD(bool, m_bIsScoped)
+	// Optional: read it only after schema::HasField confirms it exists in the running build.
+	SCHEMA_FIELD(QAngle, m_aimPunchAngle)
 };

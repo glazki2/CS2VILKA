@@ -51,8 +51,8 @@ class MMSPluginConfig(object):
       raise Exception('plugin-metadata.json is missing: {}.'.format(', '.join(missing)))
     if metadata['name'] != 'csvilka' or metadata['alias'] != 'csvilka':
       raise Exception('The plugin name and alias must both stay csvilka.')
-    if metadata['version'] != '1.0.14':
-      raise Exception('The CSVILKA version must be 1.0.14.')
+    if metadata['version'] != '1.1.0':
+      raise Exception('The CSVILKA version must be 1.1.0.')
     return metadata
 
   def findSdkPath(self, sdk_name):

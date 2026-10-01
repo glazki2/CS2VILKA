@@ -105,6 +105,13 @@ namespace
 										  "Detect repeated same-time button aliases carrying pitch or yaw changes", true, OnDetectionSettingChanged};
 		CConVar<bool> triggerbotEnabled {"csvilka_triggerbot_enabled", FCVAR_NONE, "Detect repeated inhuman reactions to fresh crosshair contact",
 										 true, OnDetectionSettingChanged};
+		CConVar<bool> recoilEnabled {"csvilka_recoil_enabled", FCVAR_NONE, "Detect sprays whose recoil is cancelled almost perfectly (experimental)",
+									 true, OnDetectionSettingChanged};
+		CConVar<bool> wallhackEnabled {"csvilka_wallhack_enabled", FCVAR_NONE,
+									   "Detect bursts of headshot kills on enemies the killer never saw (experimental)", true,
+									   OnDetectionSettingChanged};
+		CConVar<bool> noflashEnabled {"csvilka_noflash_enabled", FCVAR_NONE, "Detect repeated long-range kills while fully flashed (experimental)",
+									  true, OnDetectionSettingChanged};
 		CConVar<bool> chatAnnouncements {"csvilka_chat_announcements", FCVAR_NONE, "Show CSVILKA detections in public chat", true};
 		CConVar<bool> centerAnnouncements {"csvilka_center_announcements", FCVAR_NONE, "Show CSVILKA detections in the center of the screen", true};
 		CConVar<bool> automaticUpdates {"csvilka_auto_update", FCVAR_NONE, "Automatically download verified stable updates", false};
@@ -118,6 +125,14 @@ namespace
 		CConVar<CUtlString> detectionCommand {"csvilka_detection_command", FCVAR_NONE,
 											  "Command run on every detection, before any punishment decision", CUtlString("")};
 		CConVar<bool> ignoreWarmup {"csvilka_ignore_warmup", FCVAR_NONE, "Never punish statistical detections during warmup", true};
+		CConVar<bool> experimentalEnforce {"csvilka_experimental_enforce", FCVAR_NONE,
+										   "Let experimental detectors announce and count as weak evidence instead of only reporting", false};
+		CConVar<bool> announceUnconfirmed {"csvilka_announce_unconfirmed", FCVAR_NONE, "Announce detections in public chat before they are confirmed",
+										   false};
+		CConVar<bool> banHistory {"csvilka_ban_history", FCVAR_NONE, "Look up Steam VAC and game bans of connected players", true};
+		CConVar<CUtlString> steamApiKey {"csvilka_steam_api_key", FCVAR_PROTECTED, "Steam Web API key used for ban history checks", CUtlString("")};
+		CConVar<int> banHistoryKickDays {"csvilka_ban_history_kick_days", FCVAR_NONE,
+										 "Kick players whose last VAC or game ban is at most this many days old (0 reports only)", 0};
 		CConVar<CUtlString> kickCommand {"csvilka_kick_command", FCVAR_NONE, "Command run for kick-only detections",
 										 CUtlString("css_kick #{userid} CSVILKA: {detection}")};
 		CConVar<CUtlString> webhookUrl {"csvilka_webhook_url", FCVAR_PROTECTED, "Discord webhook URL for detection reports", CUtlString("")};
@@ -177,6 +192,12 @@ namespace
 				return configuration->subtickSpamEnabled.GetBool();
 			case DetectionType::Triggerbot:
 				return configuration->triggerbotEnabled.GetBool();
+			case DetectionType::Recoil:
+				return configuration->recoilEnabled.GetBool();
+			case DetectionType::Wallhack:
+				return configuration->wallhackEnabled.GetBool();
+			case DetectionType::NoFlash:
+				return configuration->noflashEnabled.GetBool();
 			case DetectionType::Count:
 				return false;
 		}
@@ -311,6 +332,31 @@ int settings::GetBanConfirmations()
 int settings::GetConfirmationWindow()
 {
 	return configuration ? std::clamp(configuration->confirmationWindow.Get(), 60, 86400) : 1800;
+}
+
+bool settings::ExperimentalEnforce()
+{
+	return configuration && configuration->experimentalEnforce.GetBool();
+}
+
+bool settings::AnnounceUnconfirmed()
+{
+	return configuration && configuration->announceUnconfirmed.GetBool();
+}
+
+bool settings::BanHistoryEnabled()
+{
+	return configuration && configuration->banHistory.GetBool();
+}
+
+const char *settings::GetSteamApiKey()
+{
+	return configuration ? configuration->steamApiKey.Get().Get() : "";
+}
+
+int settings::GetBanHistoryKickDays()
+{
+	return configuration ? std::clamp(configuration->banHistoryKickDays.Get(), 0, 36500) : 0;
 }
 
 bool settings::IgnoreWarmup()
