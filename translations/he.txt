@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", אבל לא נשלח עונש משום שהחיבור שלו היה לא יציב."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"זוהי בדיקה. אף שחקן לא זוהה או נענש."
 
 	"evidence.aimbot.snap_return"	"CSVILKA מצאו יריות מזיקות של {incidents} כאשר המטרה קפצה במהלך הזריקה ומיד חזרה. הזינוק האחרון היה {snap} מעלות."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"לא נשלח עונש משום שחיבור השחקן חרג מגבולות הרשת הבטוחים."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"לא הייתה תוצאת ענישה זמינה."
 	"webhook.unknown_player"	"שחקן לא ידוע"
 	"webhook.unknown_detection"	"לא ידוע"

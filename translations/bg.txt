@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", но не беше изпратено наказание, защото връзката му беше нестабилна."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Това е тест. Няма засечен или наказан играч."
 
 	"evidence.aimbot.snap_return"	"CSVILKA намери {incidents} увреждащи изстрели, при които мерникът скочи по време на изстрела и веднага се върна. Последният скок беше {snap} градуса."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Не беше изпратено наказание, защото връзката на играча надхвърли безопасните мрежови граници."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Няма наличен резултат за наказанието."
 	"webhook.unknown_player"	"Неизвестен играч"
 	"webhook.unknown_detection"	"НЕИЗВЕСТНО"

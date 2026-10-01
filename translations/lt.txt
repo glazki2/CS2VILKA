@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", bet bausmė neišsiųsta, nes ryšys buvo nestabilus."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Tai yra testas. Joks žaidėjas nebuvo aptiktas ar nubaustas."
 
 	"evidence.aimbot.snap_return"	"CSVILKA rado {incidents} žalojančius šūvius, kur taikinys šoktelėjo šūvio metu ir iškart sugrįžo. Paskutinis šuolis buvo {snap} laipsnių."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Bausmė neišsiųsta, nes žaidėjo ryšys viršijo saugias tinklo ribas."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Bausmės rezultatas nebuvo pasiekiamas."
 	"webhook.unknown_player"	"Nežinomas žaidėjas"
 	"webhook.unknown_detection"	"NEŽINOMA"

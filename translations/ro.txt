@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", dar nu a fost trimisă nicio pedeapsă deoarece conexiunea era instabilă."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Acesta este un test. Niciun jucător nu a fost detectat sau pedepsit."
 
 	"evidence.aimbot.snap_return"	"CSVILKA a găsit {incidents} lovituri dăunătoare în care ținta a sărit în timpul împușcării și a revenit imediat. Cel mai recent salt a fost de {snap} grade."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Nu a fost trimisă nicio pedeapsă deoarece conexiunea jucătorului a depășit limitele sigure ale rețelei."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Nu a fost disponibil niciun rezultat al pedepsei."
 	"webhook.unknown_player"	"Jucător necunoscut"
 	"webhook.unknown_detection"	"NECUNOSCUT"

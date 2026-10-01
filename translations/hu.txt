@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", de az instabil kapcsolata miatt nem lett büntetés elküldve."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Ez egy teszt. Egyetlen játékos sem lett észlelve vagy megbüntetve."
 
 	"evidence.aimbot.snap_return"	"CSVILKA talált {incidents} károsító lövéseket, ahol a cél lövés közben ugrott és azonnal visszatért. A legutóbbi ugrás {snap} fok volt."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Nem lett büntetés elküldve, mert a játékos kapcsolata túllépte a biztonságos hálózati határokat."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Nem állt rendelkezésre büntetési eredmény."
 	"webhook.unknown_player"	"Ismeretlen játékos"
 	"webhook.unknown_detection"	"ISMERETLEN"

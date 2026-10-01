@@ -137,7 +137,13 @@ private:
 	std::array<JoinWatermarkState, MAXPLAYERS + 1> joinWatermarks {};
 	std::array<PunishmentLevel, MAXPLAYERS + 1> punishmentLevels {};
 	// Keyed by SteamID64 so evidence survives a reconnect.
-	std::unordered_map<std::uint64_t, std::deque<std::chrono::steady_clock::time_point>> confirmationHistory;
+	struct EvidenceEntry
+	{
+		std::chrono::steady_clock::time_point time;
+		bool weak {};
+	};
+	std::unordered_map<std::uint64_t, std::deque<EvidenceEntry>> confirmationHistory;
+	bool warmupActive {};
 };
 
 extern CSVILKAPlugin g_CSVILKA;

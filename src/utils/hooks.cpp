@@ -52,7 +52,8 @@ namespace
 		}
 		const char *name = event->GetName();
 		return CSVILKA_STREQ(name, "weapon_fire") || CSVILKA_STREQ(name, "player_hurt") || CSVILKA_STREQ(name, "player_death")
-			   || CSVILKA_STREQ(name, "player_spawn") || CSVILKA_STREQ(name, "smokegrenade_detonate");
+			   || CSVILKA_STREQ(name, "player_spawn") || CSVILKA_STREQ(name, "smokegrenade_detonate") || CSVILKA_STREQ(name, "round_announce_warmup")
+			   || CSVILKA_STREQ(name, "warmup_end") || CSVILKA_STREQ(name, "round_announce_match_start");
 	}
 
 	MovementPlayer *ResolveEventPlayer(IGameEvent *event)

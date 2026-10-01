@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", tetapi hukuman tidak dikirim karena koneksinya tidak stabil."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Ini adalah tes. Tidak ada pemain yang terdeteksi atau dihukum."
 
 	"evidence.aimbot.snap_return"	"CSVILKA menemukan {incidents} tembakan yang merusak dimana bidikannya melompat selama tembakan dan segera kembali. Lompatan terakhir adalah {snap} derajat."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Hukuman tidak dikirim karena koneksi pemain melewati batas jaringan yang aman."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Tidak ada hasil hukuman yang tersedia."
 	"webhook.unknown_player"	"Pemain tidak dikenal"
 	"webhook.unknown_detection"	"TIDAK DIKENAL"

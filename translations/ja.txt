@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	"が、接続が不安定だったため処罰は送信されませんでした。"
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"これはテストです。プレイヤーの検出や処罰は行われていません。"
 
 	"evidence.aimbot.snap_return"	"CSVILKA は、{incidents} がショット中に照準がジャンプしてすぐに戻ってダメージを与えたショットを発見しました。最新のジャンプは {snap} 度でした。"
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"プレイヤーの接続が安全なネットワーク制限を超えたため、処罰は送信されませんでした。"
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"処罰結果を取得できませんでした。"
 	"webhook.unknown_player"	"不明なプレイヤー"
 	"webhook.unknown_detection"	"不明"

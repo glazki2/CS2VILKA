@@ -45,6 +45,7 @@ namespace settings
 	const char *GetPunishmentCommand();
 	const char *GetKickCommand();
 	bool ObserveMode();
+	bool IgnoreWarmup();
 	bool DetectionLogEnabled();
 	const char *GetDetectionCommand();
 	int GetBanConfirmations();

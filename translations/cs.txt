@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", ale trest nebyl odeslán, protože jeho připojení bylo nestabilní."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Toto je test. Žádný hráč nebyl odhalen ani potrestán."
 
 	"evidence.aimbot.snap_return"	"CSVILKA našel {incidents} poškozující střely, kde cíl během výstřelu vyskočil a okamžitě se vrátil. Poslední skok byl {snap} stupňů."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Trest nebyl odeslán, protože připojení hráče překročilo bezpečné síťové limity."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Výsledek trestu nebyl dostupný."
 	"webhook.unknown_player"	"Neznámý hráč"
 	"webhook.unknown_detection"	"NEZNÁMÉ"

@@ -37,6 +37,7 @@ namespace utils
 		NetworkUnstable,
 		AwaitingConfirmation,
 		ObserveOnly,
+		Warmup,
 	};
 
 	void Initialize(std::vector<std::string> &missing);

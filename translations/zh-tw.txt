@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	"，但由於網路連線不穩定，未執行處罰。"
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"這是一則測試訊息。沒有玩家被偵測或處罰。"
 
 	"evidence.aimbot.snap_return"	"CSVILKA發現{incidents}具有破壞性的射擊，射擊過程中目標會跳躍並立即返回。最近的跳躍是 {snap} 度。"
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"玩家的連線超過安全網路限制，因此未執行處罰。"
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"沒有可用的處罰結果。"
 	"webhook.unknown_player"	"未知玩家"
 	"webhook.unknown_detection"	"未知"

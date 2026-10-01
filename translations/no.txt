@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", men ingen straff ble sendt fordi forbindelsen var ustabil."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Dette er en test. Ingen spiller ble oppdaget eller straffet."
 
 	"evidence.aimbot.snap_return"	"CSVILKA fant {incidents} skadelige skudd der siktet hoppet under skuddet og umiddelbart returnerte. Det siste hoppet var {snap} grader."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Ingen straff ble sendt fordi spillerens forbindelse overskred de sikre nettverksgrensene."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Ingen strafferesultat var tilgjengelig."
 	"webhook.unknown_player"	"Ukjent spiller"
 	"webhook.unknown_detection"	"UKJENT"

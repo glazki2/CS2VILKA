@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", kuid ebastabiilse ühenduse tõttu karistust ei saadetud."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"See on test. Ühtegi mängijat ei tuvastatud ega karistatud."
 
 	"evidence.aimbot.snap_return"	"CSVILKA leidis {incidents} kahjustavad lasud, kus sihik hüppas lasu ajal ja pöördus kohe tagasi. Viimane hüpe oli {snap} kraadi."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Karistust ei saadetud, sest mängija ühendus ületas turvalised võrgupiirid."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Karistuse tulemus polnud saadaval."
 	"webhook.unknown_player"	"Tundmatu mängija"
 	"webhook.unknown_detection"	"TUNDMATU"

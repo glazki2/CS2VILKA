@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", bet sods netika nosūtīts, jo savienojums bija nestabils."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Šis ir tests. Neviens spēlētājs netika konstatēts vai sodīts."
 
 	"evidence.aimbot.snap_return"	"CSVILKA atrada {incidents} kaitīgus šāvienus, kur mērķis šāviena laikā uzlēca un nekavējoties atgriezās. Pēdējais lēciens bija {snap} grādi."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Sods netika nosūtīts, jo spēlētāja savienojums pārsniedza drošās tīkla robežas."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Soda rezultāts nebija pieejams."
 	"webhook.unknown_player"	"Nezināms spēlētājs"
 	"webhook.unknown_detection"	"NEZINĀMS"

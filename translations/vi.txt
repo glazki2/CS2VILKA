@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", nhưng không gửi hình phạt vì kết nối không ổn định."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Đây là tin nhắn thử nghiệm. Không có người chơi nào bị phát hiện hoặc xử phạt."
 
 	"evidence.aimbot.snap_return"	"CSVILKA đã tìm thấy {incidents} những cú đánh gây sát thương trong đó mục tiêu đã nhảy lên trong khi bắn và ngay lập tức quay trở lại. Lần nhảy gần đây nhất là {snap} độ."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Không gửi hình phạt vì kết nối của người chơi vượt quá giới hạn mạng an toàn."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Không có kết quả hình phạt."
 	"webhook.unknown_player"	"Người chơi không xác định"
 	"webhook.unknown_detection"	"KHÔNG XÁC ĐỊNH"

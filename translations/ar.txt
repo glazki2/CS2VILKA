@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	"، لكن لم تُرسل أي عقوبة لأن اتصال اللاعب كان غير مستقر."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"هذا اختبار. لم يتم اكتشاف أي لاعب أو معاقبته."
 
 	"evidence.aimbot.snap_return"	"CSVILKA عثر على {incidents} تسديدات مدمرة حيث قفز الهدف أثناء التسديد ثم عاد على الفور. وكانت القفزة الأخيرة {snap} درجة."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"لم تُرسل أي عقوبة لأن اتصال اللاعب تجاوز حدود الشبكة الآمنة."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"لم تتوفر نتيجة للعقوبة."
 	"webhook.unknown_player"	"لاعب غير معروف"
 	"webhook.unknown_detection"	"غير معروف"

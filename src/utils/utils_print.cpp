@@ -356,6 +356,8 @@ static std::string DetectionOutcomeText(utils::DetectionOutcome outcome)
 			return localization::Get("announcement.outcome.network_unstable", ", but no punishment was sent because their connection was unstable.");
 		case utils::DetectionOutcome::AwaitingConfirmation:
 			return localization::Get("announcement.outcome.awaiting_confirmation", ". The evidence was recorded and needs confirmation before any punishment.");
+		case utils::DetectionOutcome::Warmup:
+			return localization::Get("announcement.outcome.warmup", ". It is warmup, so no punishment was sent.");
 		case utils::DetectionOutcome::ObserveOnly:
 			return localization::Get("announcement.outcome.observe_only", ". Observe mode is on, so no punishment was sent.");
 	}

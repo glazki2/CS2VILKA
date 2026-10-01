@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", но наказание не отправлено из-за нестабильного соединения."
 	"announcement.outcome.awaiting_confirmation"	". Улики записаны, наказание будет только после подтверждения."
 	"announcement.outcome.observe_only"	". Включён режим наблюдения, наказание не отправлено."
+	"announcement.outcome.warmup"	". Идёт разминка, наказание не отправлено."
 	"announcement.test"	"Это тест. Ни один игрок не был обнаружен или наказан."
 
 	"evidence.aimbot.snap_return"	"CSVILKA нашел {incidents} поражающие выстрелы, при которых прицел подпрыгивал во время выстрела и тут же возвращался. Последний скачок составил {snap} градуса."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Наказание не отправлено, потому что соединение игрока превысило безопасные сетевые пределы."
 	"webhook.outcome.awaiting_confirmation"	"Улики записаны. Наказание отправляется только после подтверждения независимыми детектами."
 	"webhook.outcome.observe_only"	"Включён режим наблюдения, команда наказания не отправлена."
+	"webhook.outcome.warmup"	"Шла разминка, команда наказания не отправлена."
 	"webhook.outcome.unavailable"	"Результат наказания недоступен."
 	"webhook.unknown_player"	"Неизвестный игрок"
 	"webhook.unknown_detection"	"НЕИЗВЕСТНО"

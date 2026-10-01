@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", ali kazna nije poslana jer je veza bila nestabilna."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Ovo je test. Nijedan igrač nije otkriven niti kažnjen."
 
 	"evidence.aimbot.snap_return"	"CSVILKA pronašao je {incidents} štetne hice kod kojih je cilj skočio tijekom hica i odmah se vratio. Zadnji skok bio je {snap} stupnja."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Kazna nije poslana jer je veza igrača prešla sigurne mrežne granice."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Ishod kazne nije bio dostupan."
 	"webhook.unknown_player"	"Nepoznat igrač"
 	"webhook.unknown_detection"	"NEPOZNATO"

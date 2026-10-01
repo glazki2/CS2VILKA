@@ -64,6 +64,33 @@ namespace
 		return CSVILKA_STREQI(detection, "DLL INJECTION") || CSVILKA_STREQI(detection, "INVALID CVAR") || CSVILKA_STREQI(detection, "INVALID INPUT");
 	}
 
+	// Heuristic detectors that honest players with good aim or movement can occasionally trip.
+	// They count half and can never ban on their own: a strong detector must corroborate them.
+	bool IsWeakDetection(const char *detection)
+	{
+		return CSVILKA_STREQI(detection, "IRREGULAR BEHAVIOR") || CSVILKA_STREQI(detection, "INHUMAN ACCURACY")
+			   || CSVILKA_STREQI(detection, "TRIGGERBOT") || CSVILKA_STREQI(detection, "DOUBLETAP") || CSVILKA_STREQI(detection, "AUTOSTRAFE")
+			   || CSVILKA_STREQI(detection, "HYPERSCROLL");
+	}
+
+	struct EvidenceScore
+	{
+		float points {};
+		bool strong {};
+	};
+
+	template<typename History>
+	EvidenceScore ScoreEvidence(const History &history)
+	{
+		EvidenceScore score;
+		for (const auto &entry : history)
+		{
+			score.points += entry.weak ? 0.5f : 1.0f;
+			score.strong |= !entry.weak;
+		}
+		return score;
+	}
+
 	// Detections closer together than this belong to the same incident and confirm nothing.
 	const char *OutcomeName(utils::DetectionOutcome outcome)
 	{
@@ -79,6 +106,7 @@ namespace
 			case utils::DetectionOutcome::NetworkUnstable: return "network-unstable";
 			case utils::DetectionOutcome::AwaitingConfirmation: return "awaiting-confirmation";
 			case utils::DetectionOutcome::ObserveOnly: return "observe-only";
+			case utils::DetectionOutcome::Warmup: return "warmup";
 		}
 		return "unknown";
 	}
@@ -709,6 +737,18 @@ void CSVILKAPlugin::OnGameFrame(bool simulating)
 void CSVILKAPlugin::OnGameEvent(IGameEvent *event, MovementPlayer *player)
 {
 	auto *globals = g_pCSVILKAUtils->GetServerGlobals();
+	if (event)
+	{
+		const char *name = event->GetName();
+		if (CSVILKA_STREQ(name, "round_announce_warmup"))
+		{
+			warmupActive = true;
+		}
+		else if (CSVILKA_STREQ(name, "warmup_end") || CSVILKA_STREQ(name, "round_announce_match_start"))
+		{
+			warmupActive = false;
+		}
+	}
 	detectionSystem.OnGameEvent(event, player, globals ? globals->tickcount : 0);
 }
 
@@ -790,24 +830,39 @@ void CSVILKAPlugin::HandleDetection(const char *detection, MovementPlayer *playe
 		return;
 	}
 
-	if (requested == PunishmentLevel::Ban && !IsDeterministicDetection(detection))
+	const bool deterministic = IsDeterministicDetection(detection);
+	if (warmupActive && settings::IgnoreWarmup() && !deterministic)
+	{
+		finish(utils::DetectionOutcome::Warmup);
+		Msg("[CSVILKA] No punishment was sent for %s because the match is in warmup.\n", playerName.c_str());
+		return;
+	}
+
+	if (requested == PunishmentLevel::Ban && !deterministic)
 	{
 		const auto now = std::chrono::steady_clock::now();
 		auto &history = confirmationHistory[steamId];
-		while (!history.empty() && now - history.front() > std::chrono::seconds(settings::GetConfirmationWindow()))
+		while (!history.empty() && now - history.front().time > std::chrono::seconds(settings::GetConfirmationWindow()))
 		{
 			history.pop_front();
 		}
-		if (history.empty() || now - history.back() >= minimumConfirmationSpacing)
+		const bool weak = IsWeakDetection(detection);
+		if (history.empty() || now - history.back().time >= minimumConfirmationSpacing)
 		{
-			history.push_back(now);
+			history.push_back({now, weak});
 		}
+		else if (history.back().weak && !weak)
+		{
+			// A strong detector in the same incident upgrades it, but still counts once.
+			history.back().weak = false;
+		}
+		const EvidenceScore score = ScoreEvidence(history);
 		const int required = settings::GetBanConfirmations();
-		if (static_cast<int>(history.size()) < required)
+		if (score.points < static_cast<float>(required) || !score.strong)
 		{
 			finish(utils::DetectionOutcome::AwaitingConfirmation);
-			Msg("[CSVILKA] %s has %d of %d independent detections needed for a ban.\n", playerName.c_str(), static_cast<int>(history.size()),
-				required);
+			Msg("[CSVILKA] %s has %.1f of %d evidence points needed for a ban%s.\n", playerName.c_str(), score.points, required,
+				score.strong ? "" : " (a strong detection is also required)");
 			return;
 		}
 	}
@@ -1011,13 +1066,18 @@ void CSVILKAPlugin::PrintEvidence(const char *steamIdText) const
 		{
 			continue;
 		}
-		int active = 0;
-		for (const auto &time : history)
+		float points = 0.0f;
+		bool strong = false;
+		for (const auto &entry : history)
 		{
-			active += now - time <= window ? 1 : 0;
+			if (now - entry.time <= window)
+			{
+				points += entry.weak ? 0.5f : 1.0f;
+				strong |= !entry.weak;
+			}
 		}
-		Msg("[CSVILKA] %llu: %d of %d confirmations in the current window.\n", static_cast<unsigned long long>(steamId), active,
-			settings::GetBanConfirmations());
+		Msg("[CSVILKA] %llu: %.1f of %d evidence points%s.\n", static_cast<unsigned long long>(steamId), points, settings::GetBanConfirmations(),
+			strong ? "" : ", no strong detection yet");
 		++shown;
 	}
 	if (!shown)
@@ -1254,7 +1314,7 @@ void CSVILKAPlugin::ResetRuntime()
 	detectionSystem.Reset();
 	g_pCSVILKAPlayerManager->ResetPlayers();
 	punishmentLevels.fill(PunishmentLevel::None);
-	confirmationHistory.clear();
+	warmupActive = false;
 }
 
 void CSVILKAPlugin::CleanupRuntime()

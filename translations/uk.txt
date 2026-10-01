@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", але покарання не надіслано через нестабільне з'єднання."
 	"announcement.outcome.awaiting_confirmation"	". Докази записано, покарання буде лише після підтвердження."
 	"announcement.outcome.observe_only"	". Увімкнено режим спостереження, покарання не надіслано."
+	"announcement.outcome.warmup"	". Триває розминка, покарання не надіслано."
 	"announcement.test"	"Це тест. Жодного гравця не було виявлено чи покарано."
 
 	"evidence.aimbot.snap_return"	"CSVILKA виявив {incidents} шкідливі постріли, де приціл стрибнув під час пострілу, і негайно повернувся. Останній стрибок становив {snap} градуси."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Покарання не надіслано, оскільки з'єднання гравця перевищило безпечні мережеві межі."
 	"webhook.outcome.awaiting_confirmation"	"Докази записано. Покарання надсилається лише після підтвердження незалежними детектами."
 	"webhook.outcome.observe_only"	"Увімкнено режим спостереження, команду покарання не надіслано."
+	"webhook.outcome.warmup"	"Тривала розминка, команду покарання не надіслано."
 	"webhook.outcome.unavailable"	"Результат покарання недоступний."
 	"webhook.unknown_player"	"Невідомий гравець"
 	"webhook.unknown_detection"	"НЕВІДОМО"

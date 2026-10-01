@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", mutta rangaistusta ei lähetetty epävakaan yhteyden vuoksi."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Tämä on testi. Ketään pelaajaa ei havaittu tai rangaistu."
 
 	"evidence.aimbot.snap_return"	"CSVILKA löysi {incidents} vahingoittavia laukauksia, joissa tähtäin hyppäsi laukauksen aikana ja palasi välittömästi. Viimeisin hyppy oli {snap} astetta."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Rangaistusta ei lähetetty, koska pelaajan yhteys ylitti turvalliset verkkorajat."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Rangaistuksen tulosta ei ollut saatavilla."
 	"webhook.unknown_player"	"Tuntematon pelaaja"
 	"webhook.unknown_detection"	"TUNTEMATON"

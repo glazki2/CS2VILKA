@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", but no punishment was sent because their connection was unstable."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"This is a test. No player was detected or punished."
 
 	"evidence.aimbot.snap_return"	"CSVILKA found {incidents} damaging shots where the aim jumped during the shot and immediately returned. The latest jump was {snap} degrees."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"No punishment was sent because the player's connection exceeded the safe network limits."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"No punishment outcome was available."
 	"webhook.unknown_player"	"Unknown player"
 	"webhook.unknown_detection"	"UNKNOWN"

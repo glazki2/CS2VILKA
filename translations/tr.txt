@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", ancak bağlantısı kararsız olduğu için ceza gönderilmedi."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Bu bir testtir. Hiçbir oyuncu tespit edilmedi veya cezalandırılmadı."
 
 	"evidence.aimbot.snap_return"	"CSVILKA, nişanın atış sırasında aniden sıçrayıp hemen geri döndüğü {incidents} hasarlı atış buldu. Son sıçrama {snap} dereceydi."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Oyuncunun bağlantısı güvenli ağ sınırlarını aştığı için ceza gönderilmedi."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Ceza sonucu bilgisi bulunamadı."
 	"webhook.unknown_player"	"Bilinmeyen oyuncu"
 	"webhook.unknown_detection"	"BİLİNMİYOR"

@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	" แต่ไม่มีการส่งบทลงโทษเนื่องจากการเชื่อมต่อไม่เสถียร"
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"นี่คือข้อความทดสอบ ไม่มีผู้เล่นถูกตรวจพบหรือลงโทษ"
 
 	"evidence.aimbot.snap_return"	"CSVILKA พบ {incidents} กระสุนที่สร้างความเสียหาย โดยเป้าหมายกระโดดระหว่างการยิงและกลับมาทันที กระโดดล่าสุด {snap} องศา"
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"ไม่ได้ส่งการลงโทษเพราะการเชื่อมต่อของผู้เล่นเกินขีดจำกัดเครือข่ายที่ปลอดภัย"
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"ไม่มีผลการลงโทษ"
 	"webhook.unknown_player"	"ผู้เล่นไม่ทราบชื่อ"
 	"webhook.unknown_detection"	"ไม่ทราบ"

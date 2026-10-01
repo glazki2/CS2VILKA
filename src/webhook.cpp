@@ -117,6 +117,8 @@ namespace
 			case utils::DetectionOutcome::AwaitingConfirmation:
 				return localization::Get("webhook.outcome.awaiting_confirmation",
 										 "The evidence was recorded. A punishment is sent only after independent detections confirm it.");
+			case utils::DetectionOutcome::Warmup:
+				return localization::Get("webhook.outcome.warmup", "The match was in warmup, so no punishment command was sent.");
 			case utils::DetectionOutcome::ObserveOnly:
 				return localization::Get("webhook.outcome.observe_only", "Observe mode is enabled, so no punishment command was sent.");
 		}

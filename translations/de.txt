@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", aber wegen der instabilen Verbindung wurde keine Strafe gesendet."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Dies ist ein Test. Kein Spieler wurde erkannt oder bestraft."
 
 	"evidence.aimbot.snap_return"	"CSVILKA hat {incidents} schädliche Schüsse gefunden, bei denen das Ziel während des Schusses absprang und sofort zurückkehrte. Der letzte Sprung betrug {snap} Grad."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Es wurde keine Strafe gesendet, weil die Verbindung des Spielers die sicheren Netzwerkgrenzen überschritten hat."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Kein Ergebnis der Bestrafung verfügbar."
 	"webhook.unknown_player"	"Unbekannter Spieler"
 	"webhook.unknown_detection"	"UNBEKANNT"

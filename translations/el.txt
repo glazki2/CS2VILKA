@@ -11,6 +11,7 @@
 	"announcement.outcome.network_unstable"	", αλλά δεν στάλθηκε ποινή επειδή η σύνδεσή του ήταν ασταθής."
 	"announcement.outcome.awaiting_confirmation"	". The evidence was recorded and needs confirmation before any punishment."
 	"announcement.outcome.observe_only"	". Observe mode is on, so no punishment was sent."
+	"announcement.outcome.warmup"	". It is warmup, so no punishment was sent."
 	"announcement.test"	"Αυτό είναι δοκιμή. Κανένας παίκτης δεν εντοπίστηκε ή τιμωρήθηκε."
 
 	"evidence.aimbot.snap_return"	"Ο CSVILKA βρήκε τον {incidents} βλαπτικές βολές όπου ο στόχος πήδηξε κατά τη διάρκεια της βολής και αμέσως επέστρεψε. Το τελευταίο άλμα ήταν {snap} μοίρες."
@@ -83,6 +84,7 @@
 	"webhook.outcome.network_unstable"	"Δεν στάλθηκε ποινή επειδή η σύνδεση του παίκτη ξεπέρασε τα ασφαλή όρια δικτύου."
 	"webhook.outcome.awaiting_confirmation"	"The evidence was recorded. A punishment is sent only after independent detections confirm it."
 	"webhook.outcome.observe_only"	"Observe mode is enabled, so no punishment command was sent."
+	"webhook.outcome.warmup"	"The match was in warmup, so no punishment command was sent."
 	"webhook.outcome.unavailable"	"Δεν υπήρχε διαθέσιμο αποτέλεσμα ποινής."
 	"webhook.unknown_player"	"Άγνωστος παίκτης"
 	"webhook.unknown_detection"	"ΑΓΝΩΣΤΟ"
