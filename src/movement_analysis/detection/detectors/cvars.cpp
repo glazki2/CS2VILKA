@@ -9,10 +9,10 @@
 #include <chrono>
 
 CConVarRef<bool> sv_cheats("sv_cheats");
-CConVar<bool> csvilka_allow_sv_cheats_testing("csvilka_allow_sv_cheats_testing", FCVAR_NONE, "Keep CSVILKA detections enabled while sv_cheats is enabled",
-											false);
-CConVar<bool> csvilka_invalid_cvar_debug("csvilka_invalid_cvar_debug", FCVAR_NONE, "Show Invalid CVar replies, latch transitions, and unavailable checks",
-									   false);
+CConVar<bool> csvilka_allow_sv_cheats_testing("csvilka_allow_sv_cheats_testing", FCVAR_NONE,
+											  "Keep CSVILKA detections enabled while sv_cheats is enabled", false);
+CConVar<bool> csvilka_invalid_cvar_debug("csvilka_invalid_cvar_debug", FCVAR_NONE,
+										 "Show Invalid CVar replies, latch transitions, and unavailable checks", false);
 
 #define INVALID_CVAR_DEBUG(...) \
 	do \
@@ -139,7 +139,8 @@ static_global void OnCvarChanged(ConVarRefAbstract *ref, CSplitScreenSlot, const
 	if (svCheatsChanged)
 	{
 		assert(sv_cheats.IsValidRef() && sv_cheats.IsConVarDataAvailable());
-		const bool enabled = pNewValue ? CSVILKA_STREQI(pNewValue, "true") || (utils::IsNumeric(pNewValue) && atof(pNewValue) != 0.0) : sv_cheats.Get();
+		const bool enabled =
+			pNewValue ? CSVILKA_STREQI(pNewValue, "true") || (utils::IsNumeric(pNewValue) && atof(pNewValue) != 0.0) : sv_cheats.Get();
 		if (!enabled)
 		{
 			cheatCvarCheckerGraceUntil = std::chrono::steady_clock::now() + SV_CHEATS_MAX_PROPAGATION_DELAY;

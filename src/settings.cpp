@@ -89,7 +89,8 @@ namespace
 										  OnDetectionSettingChanged};
 		CConVar<bool> inhumanAccuracyEnabled {"csvilka_inhuman_accuracy_enabled", FCVAR_NONE, "Detect sustained near-perfect accuracy", true,
 											  OnDetectionSettingChanged};
-		CConVar<bool> invalidCvarEnabled {"csvilka_invalid_cvar_enabled", FCVAR_NONE, "Detect unsafe client settings", true, OnDetectionSettingChanged};
+		CConVar<bool> invalidCvarEnabled {"csvilka_invalid_cvar_enabled", FCVAR_NONE, "Detect unsafe client settings", true,
+										  OnDetectionSettingChanged};
 		CConVar<bool> invalidInputEnabled {"csvilka_invalid_input_enabled", FCVAR_NONE,
 										   "Detect movement button changes without matching subtick records", true, OnDetectionSettingChanged};
 		CConVar<bool> irregularBehaviorEnabled {"csvilka_irregular_behavior_enabled", FCVAR_NONE,
@@ -102,8 +103,8 @@ namespace
 										OnDetectionSettingChanged};
 		CConVar<bool> subtickSpamEnabled {"csvilka_subtick_spam_enabled", FCVAR_NONE,
 										  "Detect repeated same-time button aliases carrying pitch or yaw changes", true, OnDetectionSettingChanged};
-		CConVar<bool> triggerbotEnabled {"csvilka_triggerbot_enabled", FCVAR_NONE, "Detect repeated inhuman reactions to fresh crosshair contact", true,
-										 OnDetectionSettingChanged};
+		CConVar<bool> triggerbotEnabled {"csvilka_triggerbot_enabled", FCVAR_NONE, "Detect repeated inhuman reactions to fresh crosshair contact",
+										 true, OnDetectionSettingChanged};
 		CConVar<bool> chatAnnouncements {"csvilka_chat_announcements", FCVAR_NONE, "Show CSVILKA detections in public chat", true};
 		CConVar<bool> centerAnnouncements {"csvilka_center_announcements", FCVAR_NONE, "Show CSVILKA detections in the center of the screen", true};
 		CConVar<bool> automaticUpdates {"csvilka_auto_update", FCVAR_NONE, "Automatically download verified stable updates", false};
@@ -112,8 +113,7 @@ namespace
 		CConVar<bool> observeMode {"csvilka_observe_mode", FCVAR_NONE, "Detect and report only, never run punishment commands", false};
 		CConVar<int> banConfirmations {"csvilka_ban_confirmations", FCVAR_NONE,
 									   "Independent detections needed before a ban (deterministic detections ban at once)", 2};
-		CConVar<int> confirmationWindow {"csvilka_confirmation_window", FCVAR_NONE, "Seconds a detection stays valid as confirmation evidence",
-										 1800};
+		CConVar<int> confirmationWindow {"csvilka_confirmation_window", FCVAR_NONE, "Seconds a detection stays valid as confirmation evidence", 1800};
 		CConVar<bool> detectionLog {"csvilka_detection_log", FCVAR_NONE, "Append every detection to addons/csvilka/logs", true};
 		CConVar<CUtlString> detectionCommand {"csvilka_detection_command", FCVAR_NONE,
 											  "Command run on every detection, before any punishment decision", CUtlString("")};

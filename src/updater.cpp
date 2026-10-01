@@ -458,8 +458,8 @@ void UpdaterService::ApplyPendingUpdate()
 		|| !CopyDirectory(packagePlugin / "translations", livePlugin / "translations")
 		|| !CopyDirectory(packagePlugin / "licenses", livePlugin / "licenses")
 		|| !CopyFileAtomically(packagePlugin / "THIRD_PARTY_NOTICES.md", livePlugin / "THIRD_PARTY_NOTICES.md")
-		|| !MergeConfig(stage / "cfg" / "csvilka.cfg", CsgoRoot() / "cfg" / "csvilka.cfg", version) || !CopyFileAtomically(packageBinary, stableBinary)
-		|| !WriteVdf("csvilka"))
+		|| !MergeConfig(stage / "cfg" / "csvilka.cfg", CsgoRoot() / "cfg" / "csvilka.cfg", version)
+		|| !CopyFileAtomically(packageBinary, stableBinary) || !WriteVdf("csvilka"))
 	{
 		Warning("[CSVILKA] The downloaded update could not be installed completely. CSVILKA will retry on the next server start.\n");
 		return;
@@ -614,7 +614,8 @@ void UpdaterService::RetryLater(const char *reason)
 {
 	CancelRequest();
 	nextCheck = std::chrono::steady_clock::now() + retryDelay;
-	Warning("[CSVILKA] %s The current version will keep running, and CSVILKA will try again later.\n", reason ? reason : "The automatic update failed.");
+	Warning("[CSVILKA] %s The current version will keep running, and CSVILKA will try again later.\n",
+			reason ? reason : "The automatic update failed.");
 }
 
 bool UpdaterService::ReadResponse(std::vector<std::uint8_t> &body, std::uint32_t maximumSize) const
@@ -708,7 +709,8 @@ bool UpdaterService::StagePackage(const std::vector<std::uint8_t> &body)
 	const fs::path packageBinary = packageRoot / "addons" / "csvilka" / "bin" / platformFolder / (std::string("csvilka") + binaryExtension);
 	// Keep this name dot-free because Metamod treats a dotted version suffix as the binary extension.
 	const fs::path updateBinary = CsgoRoot() / "addons" / "csvilka" / "bin" / platformFolder / (std::string("csvilka-update") + binaryExtension);
-	if (!fs::is_regular_file(packageBinary, error) || !fs::is_regular_file(packageRoot / "addons" / "csvilka" / "gamedata" / "csvilka.games.txt", error)
+	if (!fs::is_regular_file(packageBinary, error)
+		|| !fs::is_regular_file(packageRoot / "addons" / "csvilka" / "gamedata" / "csvilka.games.txt", error)
 		|| !fs::is_directory(packageRoot / "addons" / "csvilka" / "translations", error)
 		|| !fs::is_directory(packageRoot / "addons" / "csvilka" / "licenses", error)
 		|| !fs::is_regular_file(packageRoot / "addons" / "csvilka" / "THIRD_PARTY_NOTICES.md", error)

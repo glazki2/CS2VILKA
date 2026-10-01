@@ -7,7 +7,8 @@
 
 #include <bitset>
 
-CConVar<bool> csvilka_dll_injection_debug("csvilka_dll_injection_debug", FCVAR_NONE, "Show DLL Injection scan timing, availability, and matches", false);
+CConVar<bool> csvilka_dll_injection_debug("csvilka_dll_injection_debug", FCVAR_NONE, "Show DLL Injection scan timing, availability, and matches",
+										  false);
 
 #define DLL_INJECTION_DEBUG(...) \
 	do \

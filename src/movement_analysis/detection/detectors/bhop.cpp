@@ -12,7 +12,7 @@
 
 CConVar<bool> csvilka_bhop_debug("csvilka_bhop_debug", FCVAR_NONE, "Show Bhop landing gates, perfect chains, and input patterns", false);
 CConVar<bool> csvilka_hyperscroll_debug("csvilka_hyperscroll_debug", FCVAR_NONE,
-									  "Show Hyperscroll landing samples, jump-input patterns, and perfect ratios", false);
+										"Show Hyperscroll landing samples, jump-input patterns, and perfect ratios", false);
 
 #define BHOP_DEBUG(...) \
 	do \

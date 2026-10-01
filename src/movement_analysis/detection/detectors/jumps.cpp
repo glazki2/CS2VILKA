@@ -4,8 +4,8 @@
 #include "movement_analysis/jump_analysis/jump_analysis.h"
 #include "settings.h"
 
-CConVar<bool> csvilka_autostrafe_debug("csvilka_autostrafe_debug", FCVAR_NONE, "Show Autostrafe jump statistics, optimizer matches, and evidence counts",
-									 false);
+CConVar<bool> csvilka_autostrafe_debug("csvilka_autostrafe_debug", FCVAR_NONE,
+									   "Show Autostrafe jump statistics, optimizer matches, and evidence counts", false);
 
 #define AUTOSTRAFE_DEBUG(...) \
 	do \

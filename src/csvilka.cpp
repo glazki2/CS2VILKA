@@ -96,17 +96,28 @@ namespace
 	{
 		switch (outcome)
 		{
-			case utils::DetectionOutcome::PunishmentSent: return "punished";
-			case utils::DetectionOutcome::Whitelisted: return "whitelisted";
-			case utils::DetectionOutcome::PunishmentDisabled: return "punishment-disabled";
-			case utils::DetectionOutcome::IdentityUnavailable: return "identity-unavailable";
-			case utils::DetectionOutcome::AlreadyPunished: return "already-punished";
-			case utils::DetectionOutcome::CommandTooLong: return "command-too-long";
-			case utils::DetectionOutcome::CommandServiceUnavailable: return "command-service-unavailable";
-			case utils::DetectionOutcome::NetworkUnstable: return "network-unstable";
-			case utils::DetectionOutcome::AwaitingConfirmation: return "awaiting-confirmation";
-			case utils::DetectionOutcome::ObserveOnly: return "observe-only";
-			case utils::DetectionOutcome::Warmup: return "warmup";
+			case utils::DetectionOutcome::PunishmentSent:
+				return "punished";
+			case utils::DetectionOutcome::Whitelisted:
+				return "whitelisted";
+			case utils::DetectionOutcome::PunishmentDisabled:
+				return "punishment-disabled";
+			case utils::DetectionOutcome::IdentityUnavailable:
+				return "identity-unavailable";
+			case utils::DetectionOutcome::AlreadyPunished:
+				return "already-punished";
+			case utils::DetectionOutcome::CommandTooLong:
+				return "command-too-long";
+			case utils::DetectionOutcome::CommandServiceUnavailable:
+				return "command-service-unavailable";
+			case utils::DetectionOutcome::NetworkUnstable:
+				return "network-unstable";
+			case utils::DetectionOutcome::AwaitingConfirmation:
+				return "awaiting-confirmation";
+			case utils::DetectionOutcome::ObserveOnly:
+				return "observe-only";
+			case utils::DetectionOutcome::Warmup:
+				return "warmup";
 		}
 		return "unknown";
 	}
@@ -759,7 +770,7 @@ void CSVILKAPlugin::OnFireBullets(const CMsgTEFireBullets &event)
 }
 
 void CSVILKAPlugin::HandleDetection(const char *detection, MovementPlayer *player, const localization::Text &evidence, bool kickOnly,
-								  bool networkVetoed)
+									bool networkVetoed)
 {
 	if (!detection || !*detection || !player || player->index < 1 || player->index > MAXPLAYERS)
 	{

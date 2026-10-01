@@ -4,7 +4,7 @@
 #include "movement_analysis/player_context.h"
 
 CConVar<bool> csvilka_namechanger_debug("csvilka_namechanger_debug", FCVAR_NONE, "Show Namechanger baselines, rolling counts, and evidence expiry",
-									  false);
+										false);
 
 #define NAMECHANGER_DEBUG(...) \
 	do \
