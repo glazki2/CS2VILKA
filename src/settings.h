@@ -26,6 +26,7 @@ enum class DetectionType : std::uint8_t
 	Recoil,
 	Wallhack,
 	NoFlash,
+	Esp,
 	Count,
 };
 
@@ -53,6 +54,7 @@ namespace settings
 	const char *GetSteamApiKey();
 	int GetBanHistoryKickDays();
 	bool ExperimentalEnforce();
+	bool EspStrong();
 	bool AnnounceUnconfirmed();
 	bool DetectionLogEnabled();
 	const char *GetDetectionCommand();

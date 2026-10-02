@@ -40,6 +40,7 @@ namespace
 		"AIMBOT",    "AIMLOCK",     "ANTIAIM",          "AUTOSTRAFE",   "BHOP",          "DLL INJECTION",      "DESUBTICKING",
 		"DOUBLETAP", "HYPERSCROLL", "INHUMAN ACCURACY", "INVALID CVAR", "INVALID INPUT", "IRREGULAR BEHAVIOR", "NAMECHANGER",
 		"NULLS",     "SILENTAIM",   "SUBTICK SPAM",     "TRIGGERBOT",   "RECOIL",        "WALLHACK",           "NOFLASH",
+		"ESP",
 	};
 	static_assert(CSVILKA_ARRAYSIZE(detectionNames) == static_cast<size_t>(DetectionType::Count));
 
@@ -74,7 +75,8 @@ namespace
 	// report to administrators: no public announcement, no evidence points, and no punishment.
 	bool IsExperimentalDetection(const char *detection)
 	{
-		return CSVILKA_STREQI(detection, "RECOIL") || CSVILKA_STREQI(detection, "WALLHACK") || CSVILKA_STREQI(detection, "NOFLASH");
+		return CSVILKA_STREQI(detection, "RECOIL") || CSVILKA_STREQI(detection, "WALLHACK") || CSVILKA_STREQI(detection, "NOFLASH")
+			   || CSVILKA_STREQI(detection, "ESP");
 	}
 
 	// Outcomes that mean the detection is not confirmed. Announcing them publicly could accuse an honest player.
@@ -89,6 +91,11 @@ namespace
 	// They count half and can never ban on their own: a strong detector must corroborate them.
 	bool IsWeakDetection(const char *detection)
 	{
+		// ESP comes from CS2GLAZ's decoys, whose evidence already leaves out chance: an administrator may make it strong.
+		if (CSVILKA_STREQI(detection, "ESP"))
+		{
+			return !settings::EspStrong();
+		}
 		return CSVILKA_STREQI(detection, "IRREGULAR BEHAVIOR") || CSVILKA_STREQI(detection, "INHUMAN ACCURACY")
 			   || CSVILKA_STREQI(detection, "TRIGGERBOT") || CSVILKA_STREQI(detection, "DOUBLETAP") || CSVILKA_STREQI(detection, "AUTOSTRAFE")
 			   || CSVILKA_STREQI(detection, "HYPERSCROLL") || IsExperimentalDetection(detection);
@@ -849,6 +856,8 @@ void CSVILKAPlugin::HandleDetection(const char *detection, MovementPlayer *playe
 		Msg("[CSVILKA] Evidence: %s\n", SanitizeConsoleText(evidence.english.c_str()).c_str());
 	}
 	RunTemplateCommand(settings::GetDetectionCommand(), player, steamId, detection);
+	// Whatever happens to the detection, CS2GLAZ's decoys watch this player first.
+	MarkCs2glazSuspect(steamId, detection);
 	if (IsExperimentalDetection(detection) && !settings::ExperimentalEnforce())
 	{
 		finish(utils::DetectionOutcome::ReportOnly);
@@ -1141,11 +1150,16 @@ void CSVILKAPlugin::PrintEvidence(const char *steamIdText) const
 		}
 		Msg("[CSVILKA] %llu: %.1f of %d evidence points%s.\n", static_cast<unsigned long long>(steamId), points, settings::GetBanConfirmations(),
 			strong ? "" : ", no strong detection yet");
+		PrintDecoyEvidence(steamId);
 		++shown;
 	}
 	if (!shown)
 	{
 		Msg("[CSVILKA] No stored confirmation evidence.\n");
+		if (filter)
+		{
+			PrintDecoyEvidence(filter);
+		}
 	}
 }
 
@@ -1180,6 +1194,10 @@ void CSVILKAPlugin::HandleBanHistory(const BanHistoryRecord &record)
 		 {"days", tfm::format("%d", record.daysSinceLastBan)}});
 	Msg("[CSVILKA] Steam ban history for %s (SteamID64 %llu): %d VAC, %d game, last ban %d days ago.\n", playerName.c_str(),
 		static_cast<unsigned long long>(record.steamId), record.vacBans, record.gameBans, record.daysSinceLastBan);
+	if (record.vacBans > 0 || record.gameBans > 0)
+	{
+		MarkCs2glazSuspect(record.steamId, "BAN HISTORY");
+	}
 
 	utils::DetectionOutcome outcome = utils::DetectionOutcome::ReportOnly;
 	const int kickDays = settings::GetBanHistoryKickDays();
@@ -1425,6 +1443,7 @@ void CSVILKAPlugin::PrintStatus() const
 		webhook && webhook->IsConfigured() ? (webhook->IsDisabled() ? "disabled after an error" : "configured") : "not configured", webhookQueueSize,
 		webhookQueueSize == 1 ? "" : "s");
 	Msg("[CSVILKA] sv_cheats testing: %s.\n", MovementDetectionService::IsSvCheatsTestingAllowed() ? "allowed" : "not allowed");
+	PrintBridgeStatus();
 }
 
 void CSVILKAPlugin::ResetRuntime()

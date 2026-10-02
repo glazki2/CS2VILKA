@@ -112,6 +112,10 @@ namespace
 									   OnDetectionSettingChanged};
 		CConVar<bool> noflashEnabled {"csvilka_noflash_enabled", FCVAR_NONE, "Detect repeated long-range kills while fully flashed (experimental)",
 									  true, OnDetectionSettingChanged};
+		CConVar<bool> espEnabled {"csvilka_esp_enabled", FCVAR_NONE,
+								  "Accept CS2GLAZ decoy evidence of a wallhack as the ESP detection (experimental)", true, OnDetectionSettingChanged};
+		CConVar<bool> espStrong {"csvilka_esp_strong", FCVAR_NONE,
+								 "With csvilka_experimental_enforce, count ESP as a strong detection (one point) instead of half a point", false};
 		CConVar<bool> chatAnnouncements {"csvilka_chat_announcements", FCVAR_NONE, "Show CSVILKA detections in public chat", true};
 		CConVar<bool> centerAnnouncements {"csvilka_center_announcements", FCVAR_NONE, "Show CSVILKA detections in the center of the screen", true};
 		CConVar<bool> automaticUpdates {"csvilka_auto_update", FCVAR_NONE, "Automatically download verified stable updates", false};
@@ -198,6 +202,8 @@ namespace
 				return configuration->wallhackEnabled.GetBool();
 			case DetectionType::NoFlash:
 				return configuration->noflashEnabled.GetBool();
+			case DetectionType::Esp:
+				return configuration->espEnabled.GetBool();
 			case DetectionType::Count:
 				return false;
 		}
@@ -337,6 +343,11 @@ int settings::GetConfirmationWindow()
 bool settings::ExperimentalEnforce()
 {
 	return configuration && configuration->experimentalEnforce.GetBool();
+}
+
+bool settings::EspStrong()
+{
+	return configuration && configuration->espStrong.GetBool();
 }
 
 bool settings::AnnounceUnconfirmed()

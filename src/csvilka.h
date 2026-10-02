@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bridge/anticheat_bridge.h"
 #include "detection/detection_system.h"
 #include "clientcvar/client_cvar_value.h"
 #include "common.h"
@@ -67,6 +68,14 @@ public:
 	}
 
 	void OnLevelInit(char const *, char const *, char const *, char const *, bool, bool) override;
+	// The bridge with CS2GLAZ (bridge/bridge.cpp, bridge/anticheat_bridge.h).
+	void *OnMetamodQuery(const char *iface, int *ret) override;
+	void OnPluginLoad(PluginId id) override;
+	void OnPluginUnload(PluginId id) override;
+	void OnDecoyEvidence(int playerSlot, std::uint64_t steamId, const anticheat_bridge::decoy_evidence &evidence);
+	void MarkCs2glazSuspect(std::uint64_t steamId, const char *detection);
+	void PrintBridgeStatus() const;
+	void PrintDecoyEvidence(std::uint64_t steamId) const;
 	void OnLevelShutdown() override;
 	void OnProcessUsercmds(MovementPlayer *player, PlayerCommand *commands, int numCommands);
 	void OnSetupMove(MovementPlayer *player, PlayerCommand *command);
@@ -150,6 +159,14 @@ private:
 
 	std::unordered_map<std::uint64_t, std::deque<EvidenceEntry>> confirmationHistory;
 	bool warmupActive {};
+
+	// CS2GLAZ, found through Metamod and forgotten when it unloads. Main thread only.
+	anticheat_bridge::cs2glaz *Cs2glaz() const;
+	mutable anticheat_bridge::cs2glaz *cs2glaz {};
+	mutable PluginId cs2glazId {};
+	mutable std::chrono::steady_clock::time_point cs2glazNextSearch {};
+	std::uint64_t espReports {};
+	std::uint64_t cs2glazSuspectsSent {};
 };
 
 extern CSVILKAPlugin g_CSVILKA;
