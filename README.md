@@ -1,6 +1,6 @@
 # CSVILKA
 
-Серверный античит для Counter-Strike 2 (C++, Metamod:Source 2.x, Windows x64 / Linux x64).
+Серверный античит для Counter-Strike 2 (C++, Metamod:Source 2.0 сборка 1461 и новее, Windows x64 / Linux x64).
 
 CSVILKA анализирует прицеливание, выстрелы, движение, нажатия кнопок и клиентские настройки, которые игроки отправляют серверу. Игрокам ничего устанавливать не нужно.
 
@@ -8,7 +8,8 @@ CSVILKA анализирует прицеливание, выстрелы, дв�
 
 Готовые сборки (собраны GitHub Actions в Steam Runtime, нужен вход в GitHub, ссылки действуют до 30.12.2026):
 
-- **1.2.0 (со связкой с CS2GLAZ):** во вкладке [Actions](https://github.com/glazki2/CS2VILKA/actions/workflows/build.yml), последний запуск, раздел Artifacts (`CSVILKA-1.2.0-linux-x64`, `CSVILKA-1.2.0-windows-x64`).
+- **1.2.1 (новый Metamod 2.0 с KHook, сборки 1461+):** во вкладке [Actions](https://github.com/glazki2/CS2VILKA/actions/workflows/build.yml), последний запуск, раздел Artifacts (`CSVILKA-1.2.1-linux-x64`, `CSVILKA-1.2.1-windows-x64`).
+- 1.2.0 и старше работают только со старым Metamod (интерфейс 17, сборки до 1461); на новом Metamod они показываются как `<ERROR>`.
 - Предыдущая 1.1.0: [Linux x64](https://github.com/glazki2/CS2VILKA/actions/runs/36943114624/artifacts/11200991549), [Windows x64](https://github.com/glazki2/CS2VILKA/actions/runs/36943114624/artifacts/11201211329).
 
 Свежие сборки после каждого коммита — во вкладке [Actions](https://github.com/glazki2/CS2VILKA/actions/workflows/build.yml) (раздел Artifacts внизу запуска).
@@ -94,7 +95,7 @@ CSVILKA может спрашивать у Steam историю банов ка�
 
 ## Установка
 
-1. Установите Metamod:Source 2.x на сервер CS2.
+1. Установите Metamod:Source 2.0 (сборка 1461 или новее, интерфейс плагинов 18) на сервер CS2.
 2. Распакуйте пакет в корень сервера (пакет начинается с папки `game`).
 3. Настройте `game/csgo/cfg/csvilka.cfg`. Язык сообщений по умолчанию — русский (`csvilka_language "ru"`).
 4. Запустите сервер, выполните `meta list`, затем `csvilka_status`.

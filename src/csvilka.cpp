@@ -545,7 +545,7 @@ bool CSVILKAPlugin::QueryRunning(char *error, size_t maxlen)
 bool CSVILKAPlugin::Activate(char *error, size_t maxlen, bool late)
 {
 	std::vector<std::string> missing;
-	if (!g_SHPtr)
+	if (!KHook::__exported__khook)
 	{
 		missing.emplace_back("Metamod's hook service is unavailable.");
 	}

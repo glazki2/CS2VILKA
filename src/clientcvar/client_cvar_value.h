@@ -36,6 +36,7 @@ class IVEngineServer2;
 class ClientCvarValue final : public IClientCvarValue
 {
 public:
+	void OnProcessRespondCvarValue(void *client, const CNetMessagePB<CCLCMsg_RespondCvarValue> &msg);
 	bool Validate(IVEngineServer2 *pEngineServer, INetworkMessages *pNetworkMessages, char *error, size_t maxlen) const;
 	bool Load(IVEngineServer2 *pEngineServer, INetworkMessages *pNetworkMessages, IGameEventSystem *pGameEventSystem, char *error, size_t maxlen);
 	bool Unload();
@@ -49,12 +50,11 @@ public:
 	}
 
 private:
-	bool OnProcessRespondCvarValue(const CNetMessagePB<CCLCMsg_RespondCvarValue> &msg);
 	int SendCvarValueQueryToClient(CPlayerSlot nSlot, const char *pszCvarName, int iQueryCvarCookieOverride = -1);
 	int NextQueryCookie();
 	bool IsQueryCookieInUse(int cookie) const;
 
-	int m_iProcessRespondCvarValueID = 0;
+	void *m_pHookedVTable = nullptr;
 	int m_iClientSlotOffset = -1;
 	uint32_t m_iQueryCvarCookieCounter = 0;
 	IVEngineServer2 *m_pEngineServer = nullptr;
