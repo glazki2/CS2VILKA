@@ -98,6 +98,10 @@ bool ClientCvarValue::Validate(IVEngineServer2 *pEngineServer, INetworkMessages 
 	{
 		AddMissingRequirement(missing, "The game does not provide its player-setting query message.");
 	}
+	if (!pNetworkMessages || !pNetworkMessages->FindNetworkMessagePartial("CCLCMsg_RespondCvarValue"))
+	{
+		AddMissingRequirement(missing, "The game does not provide its player-setting response message.");
+	}
 	if (!pEngineServer)
 	{
 		AddMissingRequirement(missing, "The server's player-setting response handler could not be found.");
@@ -175,6 +179,16 @@ bool ClientCvarValue::Load(IVEngineServer2 *pEngineServer, INetworkMessages *pNe
 	}
 
 	INetworkMessageInternal *pGetCvarValueMessage = pNetworkMessages->FindNetworkMessagePartial("CSVCMsg_GetCvarValue");
+	// One response allocated by the game itself shows what every real one looks like.
+	INetworkMessageInternal *pRespondCvarValueMessage = pNetworkMessages->FindNetworkMessagePartial("CCLCMsg_RespondCvarValue");
+	CNetMessage *pRespondProbe = pRespondCvarValueMessage ? pRespondCvarValueMessage->AllocateMessage() : nullptr;
+	void *pRespondCvarValueVTable = pRespondProbe ? *reinterpret_cast<void **>(pRespondProbe) : nullptr;
+	delete pRespondProbe;
+	if (!pRespondCvarValueVTable)
+	{
+		SetLoadError(error, maxlen, "CSVILKA cannot check player settings because the game did not create a player-setting response message.");
+		return false;
+	}
 	void *pCServerSideClientVTable = DynLibUtils::CModule(pEngineServer).GetVirtualTableByName("CServerSideClient");
 	if (!pCServerSideClientVTable)
 	{
@@ -182,6 +196,8 @@ bool ClientCvarValue::Load(IVEngineServer2 *pEngineServer, INetworkMessages *pNe
 					 "CSVILKA cannot check player settings because it could not attach to the server's player-setting response handler.");
 		return false;
 	}
+	m_pRespondCvarValueVTable = pRespondCvarValueVTable;
+	m_bResponseHandlerMismatch = false;
 	processRespondCvarValueHook.Configure(g_pGameConfig->GetOffset("ProcessRespondCvarValue"));
 	m_pHookedVTable = pCServerSideClientVTable;
 	// AddGlobal reads the vtable from the first word of the object it is given.
@@ -208,12 +224,28 @@ bool ClientCvarValue::Unload()
 	m_pGameEventSystem = nullptr;
 	m_pEngineServer = nullptr;
 	m_iClientSlotOffset = -1;
+	m_pRespondCvarValueVTable = nullptr;
 	m_iQueryCvarCookieCounter = 0;
 	return removed;
 }
 
 void ClientCvarValue::OnProcessRespondCvarValue(void *client, const CNetMessagePB<CCLCMsg_RespondCvarValue> &msg)
 {
+	if (m_bResponseHandlerMismatch.load(std::memory_order_relaxed) || !m_pRespondCvarValueVTable)
+	{
+		return;
+	}
+	// Only the message's first word is read before it is known to be a response:
+	// after a game update moves the handler, another message would arrive here.
+	if (*reinterpret_cast<void *const *>(&msg) != m_pRespondCvarValueVTable)
+	{
+		if (!m_bResponseHandlerMismatch.exchange(true))
+		{
+			Warning("[CSVILKA] The player-setting response handler no longer matches this game build (ProcessRespondCvarValue in "
+					"csvilka.games.txt). Player-setting checks are off until CSVILKA is updated; everything else keeps working.\n");
+		}
+		return;
+	}
 	if (!msg.has_cookie() || m_iClientSlotOffset < 0)
 	{
 		return;

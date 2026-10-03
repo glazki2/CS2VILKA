@@ -8,7 +8,7 @@ import zipfile
 from pathlib import Path, PurePosixPath
 
 
-VERSION = "1.2.1"
+VERSION = "1.2.2"
 AMBUILD_COMMIT = "d89ec91a7ac2607da07b50bb62346f9a10e9a998"
 ARCHIVE_ROOT = f"CSVILKA-{VERSION}-source"
 

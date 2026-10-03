@@ -21,6 +21,7 @@
 #include <networksystem/netmessage.h>
 #include <netmessages.pb.h>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -55,6 +56,11 @@ private:
 	bool IsQueryCookieInUse(int cookie) const;
 
 	void *m_pHookedVTable = nullptr;
+	// What a real player-setting response looks like (its message vtable). Anything
+	// else reaching the hooked handler means the response-handler offset no longer
+	// matches the game, and the checks stop instead of reading the wrong message.
+	void *m_pRespondCvarValueVTable = nullptr;
+	std::atomic_bool m_bResponseHandlerMismatch {false};
 	int m_iClientSlotOffset = -1;
 	uint32_t m_iQueryCvarCookieCounter = 0;
 	IVEngineServer2 *m_pEngineServer = nullptr;
